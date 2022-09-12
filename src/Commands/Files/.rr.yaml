@@ -1,0 +1,29 @@
+version: "2.7"
+
+rpc:
+  listen: tcp://127.0.0.1:6001
+
+server:
+  command: "php Worker.php"
+  # env:
+  #   XDEBUG_SESSION: 1
+
+http:
+  address: "0.0.0.0:8080"
+  static:
+    dir: "{{static_paths}}"
+    forbid: [".htaccess", ".php"]
+  pool:
+    num_workers: 1
+    # max_jobs: 64
+    # debug: true
+
+# reload:
+#   interval: 1s
+#   patterns: [ ".php" ]
+#   services:
+#     http:
+#       recursive: true
+#       ignore: [ "vendor" ]
+#       patterns: [ ".php", ".go", ".dmd" ]
+#       dirs: [ "{{reload_paths}}" ]

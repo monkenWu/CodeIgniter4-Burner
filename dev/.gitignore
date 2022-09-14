@@ -127,3 +127,7 @@ nb-configuration.xml
 
 # Burner
 .rr.yaml
+.rr.yaml
+.rr.yaml
+app/config/Burner.php
+app/config/Workerman.php

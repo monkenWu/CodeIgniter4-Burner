@@ -1,8 +1,6 @@
 # CodeIgniter4-Burner
-CodeIgniter4 out-of-the-box high-performance server.
-# CodeIgniter4-Burner
 
-CodeIgniter4 out-of-the-box high-performance server.
+Burner is an out-of-the-box library for CodeIgniter4 that supports both [RoadRunner](https://roadrunner.dev/) and [Workerman](https://github.com/walkor/workerman) high-performance web servers. All you need to do is open a few php extensions to dramatically speed up your CodeIgniter4 applications, allowing them to handle higher loads and more connections at the same time.
 
 [正體中文說明書](README_zh-TW.md)
 
@@ -40,7 +38,9 @@ php spark burner:start
 ```
 
 ## RoadRunner Server Settings
+
 The server settings are all in the project root directory ".rr.yaml". The default file will look like this:
+
 ```yaml
 version: "2.7"
 
@@ -48,14 +48,14 @@ rpc:
   listen: tcp://127.0.0.1:6001
 
 server:
-  command: "php psr-worker.php"
+  command: "php Worker.php"
   # env:
   #   XDEBUG_SESSION: 1
 
 http:
   address: "0.0.0.0:8080"
   static:
-    dir: "./public"
+    dir: "/app/dev/public"
     forbid: [".htaccess", ".php"]
   pool:
     num_workers: 1
@@ -69,17 +69,48 @@ http:
 #     http:
 #       recursive: true
 #       ignore: [ "vendor" ]
-#       patterns: [ ".php", ".go", ".md" ]
-#       dirs: [ "." ]
+#       patterns: [ ".php", ".go", ".dmd" ]
+#       dirs: [ "/app/dev" ]
 ```
+
 You can create your configuration file according to the [Roadrunner document](https://roadrunner.dev/docs/intro-config).
+
+## Workerman Server Settings
+
+The server settings are all in the `app/Config` directory `Workerman.php`. The default file will look like this:
+
+
+```php
+class Workerman extends BaseConfig
+{
+    /**
+     * Public static files location path.
+     *
+     * @var string
+     */
+    public $staticDir = '/app/dev/public';
+
+    /**
+     * Public access to files with these filename-extension is prohibited.
+     *
+     * @var array
+     */
+    public $staticForbid = ['htaccess', 'php'];
+
+    /** hide **/
+}
+```
+
+You can create your configuration file according to the [Workerman document](https://www.workerman.net/doc/workerman/worker/count.html).
 
 ## Development Suggestions
 
 ### Automatic reload
 
-In the default circumstance of RoadRunner, you must restart the server everytime after you revised any PHP files so that your revision will effective.
+In the default circumstance of RoadRunner and Workerman, you must restart the server everytime after you revised any PHP files so that your revision will effective.
 It seems not that friendly during development.
+
+#### RoadRunner
 
 You can revise your `.rr.yaml` configuration file, add the settings below and start the development mode with `-d`.
 RoadRunner Server will detect if the PHP files were revised or not, automatically, and reload the Worker instantly.
@@ -96,7 +127,15 @@ reload:
       dirs: [ "." ]
 ```
 
-The `reload` function is very resource-intensive, please do not activate the option in the formal environment.
+#### Workerman 
+
+You can modify your `app/Config/Workerman.php` configuration file, add the following settings and restart the server.
+
+```php
+public $autoReload = true;
+```
+
+> The `reload` function is very resource-intensive, please do not activate the option in the formal environment.
 
 ### Using Codeigniter4 Request and Response object
 
@@ -144,7 +183,9 @@ We only focus on supporting the Codeigniter4 built-in [Session library](https://
 
 ### Developing and debugging in a environment with only one Worker
 
-Since the RoadRunner has fundamentally difference with other server software(i.e. Nginx, Apache), every Codeigniter4 will persist inside RAMs as the form of Worker, HTTP requests will reuse these Workers to process. Hence, we have better develop and test stability under the circumstance with only one Worker to prove it can also work properly under serveral Workers in the formal environment.
+Since the RoadRunner and Workerman has fundamentally difference with other server software(i.e. Nginx, Apache), every Codeigniter4 will persist inside RAMs as the form of Worker, HTTP requests will reuse these Workers to process. Hence, we have better develop and test stability under the circumstance with only one Worker to prove it can also work properly under serveral Workers in the formal environment.
+
+#### RoadRunner
 
 You can reference the `.rr.yaml` settings below to lower the amount of Worker to the minimum:
 
@@ -158,6 +199,14 @@ http:
     num_workers: 1
     # max_jobs: 64
     # debug: true
+```
+
+#### Workerman
+
+You can reference the `app/Config/Workerman.php` settings below to lower the amount of Worker to the minimum:
+
+```php
+public $workerCount = 1;
 ```
 
 ### Database Connection
@@ -180,7 +229,7 @@ We offer some Global methods to help you develop your projects more smoothly.
 
 ### Dealing with the file uploading
 
-Since the RoadRunner Worker can not transfer the correct `$_FILES` context, the Codeigniter4 file upload class will not be able to work properly. To solve this, we offered a file upload class corresponding the PSR-7 standard for you to deal with file uploading correctly within RoadRunner. Even if you switched your project to another server environment(i.e. spark serve, Apache, Nginx), this class can still work properly, and doesn't need any code modification.
+Since the RoadRunner and Workerman Worker can not transfer the correct `$_FILES` context, the Codeigniter4 file upload class will not be able to work properly. To solve this, we offered a file upload class corresponding the PSR-7 standard for you to deal with file uploading correctly within RoadRunner. Even if you switched your project to another server environment(i.e. spark serve, Apache, Nginx), this class can still work properly, and doesn't need any code modification.
 
 You can fetch the uploaded files by means of `SDPMlab\Ci4Roadrunner\UploadedFileBridge::getPsr7UploadedFiles()` in the controller (or any other places). This method will return an array, consist of Uploaded File objects. The available methods of this object is identical as the regulation of [PSR-7 Uploaded File Interface](https://www.php-fig.org/psr/psr-7/#36-psrhttpmessageuploadedfileinterface).
 
@@ -239,5 +288,3 @@ class FileUploadTest extends BaseController
 ### Dealing with thrown errors
 
 If you encountered some variables or object content that needed to be confirmed in `-d` development mode, you can use the global function `dump()` to throw errors onto the terminal no matter where the program is.
-
-## Workerman Server Settings

@@ -1,6 +1,6 @@
 # CodeIgniter4-Burner
 
-Burner is an out-of-the-box library for CodeIgniter4 that supports both RoadRunner and Workerman high-performance web servers. All you need to do is open a few php extensions to dramatically speed up your CodeIgniter4 applications, allowing them to handle higher loads and more connections at the same time.
+Burner is an out-of-the-box library for CodeIgniter4 that supports both [RoadRunner](https://roadrunner.dev/) and [Workerman](https://github.com/walkor/workerman) high-performance web servers. All you need to do is open a few php extensions to dramatically speed up your CodeIgniter4 applications, allowing them to handle higher loads and more connections at the same time.
 
 [正體中文說明書](README_zh-TW.md)
 
@@ -101,7 +101,7 @@ class Workerman extends BaseConfig
 }
 ```
 
-You can create your configuration file according to the [Workerman 手冊](https://www.workerman.net/doc/workerman/worker/count.html).
+You can create your configuration file according to the [Workerman document](https://www.workerman.net/doc/workerman/worker/count.html).
 
 ## Development Suggestions
 

@@ -34,7 +34,7 @@ class InitLibrary extends BaseCommand
             return;
         }
 
-        //init choose driver
+        // init choose driver
         $this->{"init{$driver}"}();
 
         CLI::write(
@@ -99,9 +99,11 @@ class InitLibrary extends BaseCommand
             __DIR__ . DIRECTORY_SEPARATOR . 'Files' . DIRECTORY_SEPARATOR . 'Burner-Workerman.php',
             $configPath . 'Burner.php'
         );
-        $rr = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'Files' . DIRECTORY_SEPARATOR . 'Workerman.php');
-        $rr = str_replace('{{static_paths}}', ROOTPATH . 'public', $rr);
-        $rr = str_replace('{{reload_paths}}', realpath(APPPATH . '../'), $rr);
-        file_put_contents($configPath . 'Workerman.php', $rr);
+        $cnf = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'Files' . DIRECTORY_SEPARATOR . 'Workerman.php');
+        $cnf = str_replace('{{static_path}}', ROOTPATH . 'public', $cnf);
+        $cnf = str_replace('{{reload_path}}', realpath(APPPATH . '../'), $cnf);
+        $cnf = str_replace('{{log_path}}', realpath(WRITEPATH . 'logs' . DIRECTORY_SEPARATOR . 'workerman.log'), $cnf);
+
+        file_put_contents($configPath . 'Workerman.php', $cnf);
     }
 }

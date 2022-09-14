@@ -46,16 +46,16 @@ class UploadedFile implements UploadedFileInterface
         $this->size            = $size;
         $this->error           = $error;
 
-        //parent::__construct($path, false);
+        // parent::__construct($path, false);
     }
 
     /**
      * Retrieve a stream representing the uploaded file.
      *
+     * @return StreamInterface Stream representation of the uploaded file.
+     *
      * @throws RuntimeException in cases when no stream is available or can be
      *                          created.
-     *
-     * @return StreamInterface Stream representation of the uploaded file.
      */
     public function getStream(): StreamInterface
     {
@@ -90,7 +90,7 @@ class UploadedFile implements UploadedFileInterface
      */
     public function moveTo($targetPath)
     {
-        $this->setPath($targetPath); //set the target path
+        $this->setPath($targetPath); // set the target path
 
         if ($this->hasMoved) {
             throw HTTPException::forAlreadyMoved();
@@ -129,7 +129,7 @@ class UploadedFile implements UploadedFileInterface
         $path = dirname($targetPath);
         if (! is_dir($path)) {
             mkdir($path, 0777, true);
-            //create the index.html file
+            // create the index.html file
             if (! is_file($path . 'index.html')) {
                 $file = fopen($path . 'index.html', 'x+b');
                 fclose($file);

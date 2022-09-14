@@ -11,19 +11,16 @@ if (file_exists('./vendor/autoload.php')) {
     chdir(FCPATH);
     $pathsConfig = realpath(FCPATH . '../../dev/app/Config/Paths.php');
 }
-require_once 'FileMonitor.php';
 define('BURNER_DRIVER', 'WorkerMan');
 
+use CodeIgniter\Config\Factories;
 use Config\Paths;
+use Monken\CIBurner\Workerman\Config;
 use Nyholm\Psr7\ServerRequest as PsrRequest;
 use Workerman\Connection\TcpConnection;
 use Workerman\Protocols\Http\Request;
 use Workerman\Protocols\Http\Response;
 use Workerman\Worker;
-
-$webWorker             = new Worker('http://0.0.0.0:8080');
-$webWorker->reloadable = true;
-$webWorker->name       = 'CodeIgniter4';
 
 // CodeIgniter4 init
 // Override is_cli()
@@ -34,22 +31,42 @@ if (! function_exists('is_cli')) {
     }
 }
 
-$webWorker->onWorkerStart = function () use ($pathsConfig) {
-    //Ci4 4.2.0 init
-    require realpath($pathsConfig) ?: $pathsConfig;
-    $paths     = new Paths();
-    $botstorap = rtrim($paths->systemDirectory, '\\/ ') . DIRECTORY_SEPARATOR . 'bootstrap.php';
-    require realpath($botstorap);
-    require_once SYSTEMPATH . 'Config/DotEnv.php';
-    (new \CodeIgniter\Config\DotEnv(ROOTPATH))->load();
-    $app = \Config\Services::codeigniter();
-    $app->initialize();
-    $app->setContext('web');
-};
+// Ci4 4.2.0 init
+require realpath($pathsConfig) ?: $pathsConfig;
+$paths     = new Paths();
+$botstorap = rtrim($paths->systemDirectory, '\\/ ') . DIRECTORY_SEPARATOR . 'bootstrap.php';
+require realpath($botstorap);
+require_once SYSTEMPATH . 'Config/DotEnv.php';
+(new \CodeIgniter\Config\DotEnv(ROOTPATH))->load();
+$app = \Config\Services::codeigniter();
+$app->initialize();
+$app->setContext('web');
 
-//Worker 進入點
-$webWorker->onMessage = static function (TcpConnection $connection, Request $request) {
-    //Static File
+/** @var \Config\Workerman */
+$workermanConfig = Factories::config('Workerman');
+if ($workermanConfig->autoReload) {
+    require_once 'FileMonitor.php';
+}
+Config::staticSetting($workermanConfig);
+$webWorker = new Worker(
+    'http://0.0.0.0:' . $workermanConfig->listeningPort,
+    $workermanConfig->ssl ? [
+        'ssl' => [
+            'local_cert'        => $workermanConfig->sslCertFilePath,
+            'local_pk'          => $workermanConfig->sslKeyFilePath,
+            'verify_peer'       => $workermanConfig->sslVerifyPeer,
+            'allow_self_signed' => $workermanConfig->sslAllowSelfSigned,
+        ],
+    ] : []
+);
+$webWorker->name = 'CodeIgniter4';
+Config::instanceSetting($webWorker, $workermanConfig);
+
+// Worker 進入點
+$webWorker->onMessage = static function (TcpConnection $connection, Request $request) use ($workermanConfig) {
+    $workermanConfig->runtimeTcpConnection($connection);
+
+    // Static File
     $response = \Monken\CIBurner\Workerman\StaticFile::withFile($request);
     if ((null === $response) === false) {
         $connection->send($response);
@@ -57,7 +74,7 @@ $webWorker->onMessage = static function (TcpConnection $connection, Request $req
         return;
     }
 
-    //init psr7 request
+    // init psr7 request
     $_SERVER['HTTP_USER_AGENT'] = $request->header('User-Agent');
     $psrRequest                 = (new PsrRequest(
         $request->method(),
@@ -72,7 +89,7 @@ $webWorker->onMessage = static function (TcpConnection $connection, Request $req
         ->withUploadedFiles($request->file() ?? []);
     unset($request);
 
-    //process response
+    // process response
     if ($response === null) {
         /** @var \Psr\Http\Message\ResponseInterface */
         $response = \Monken\CIBurner\App::run($psrRequest);

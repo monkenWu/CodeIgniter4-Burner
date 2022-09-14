@@ -3,12 +3,8 @@
 use Workerman\Timer;
 use Workerman\Worker;
 
-$monitor_dir = '';
-if (file_exists('./vendor/autoload.php')) {
-    $monitor_dir = ROOTPATH;
-} elseif (file_exists('../../dev/vendor/autoload.php')) {
-    $monitor_dir = realpath(__DIR__ . DIRECTORY_SEPARATOR . '../..');
-}
+$monitor_dir    = $workermanConfig->autoReloadDir;
+$scanExtensions = $workermanConfig->autoReloadScanExtensions;
 
 // worker
 $worker             = new Worker();
@@ -16,17 +12,17 @@ $worker->name       = 'FileMonitor';
 $worker->reloadable = false;
 $last_mtime         = time();
 
-$worker->onWorkerStart = static function () use ($monitor_dir) {
+$worker->onWorkerStart = static function () use ($monitor_dir, $scanExtensions) {
     // global $monitor_dir;
     // watch files only in daemon mode
     if (! Worker::$daemonize) {
         // chek mtime of files per second
-        Timer::add(1, 'check_files_change', [$monitor_dir]);
+        Timer::add(1, 'check_files_change', [$monitor_dir, $scanExtensions]);
     }
 };
 
 // check files func
-function check_files_change($monitor_dir)
+function check_files_change($monitor_dir, $scanExtensions)
 {
     global $last_mtime;
     // recursive traversal directory
@@ -35,7 +31,7 @@ function check_files_change($monitor_dir)
 
     foreach ($iterator as $file) {
         // only check php files
-        if (in_array(pathinfo($file, PATHINFO_EXTENSION), ['php', 'env'], true) !== true) {
+        if (in_array(pathinfo($file, PATHINFO_EXTENSION), $scanExtensions, true) !== true) {
             continue;
         }
 

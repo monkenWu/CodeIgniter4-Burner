@@ -1,6 +1,6 @@
 # Codeigniter4-Burner
 
-CodeIgniter4 開箱即用的高效能網頁伺服器。
+Burner 是一款專屬於 CodeIgniter4 的開箱即用的程式庫，它支援 [RoadRunner](https://roadrunner.dev/) 與 [Workerman](https://github.com/walkor/workerman) 兩種高效能網頁伺服器。你只需要開啟一些 php 擴充套件，即可大幅度地加速你的 CodeIgniter4 應用程式，使其能承受更高的負載並同時處理更多的連線。
 
 ## 安裝
 
@@ -14,7 +14,6 @@ CodeIgniter4 開箱即用的高效能網頁伺服器。
 7. 安裝並開啟 `php-pcntl` 擴充套件
 8. 安裝並開啟 `php-posix` 擴充套件
 9. 如果你使用 `Workerman` 作為驅動。我們推薦你安裝並開啟 [php-event](https://www.php.net/manual/en/book.event.php) 擴充套件
-
 
 ### Composer 安裝
 
@@ -44,18 +43,19 @@ php spark burner:start
 
 ```yaml
 version: "2.7"
+
 rpc:
   listen: tcp://127.0.0.1:6001
 
 server:
-  command: "php psr-worker.php"
+  command: "php Worker.php"
   # env:
   #   XDEBUG_SESSION: 1
 
 http:
   address: "0.0.0.0:8080"
   static:
-    dir: "./public"
+    dir: "/app/dev/public"
     forbid: [".htaccess", ".php"]
   pool:
     num_workers: 1
@@ -69,17 +69,46 @@ http:
 #     http:
 #       recursive: true
 #       ignore: [ "vendor" ]
-#       patterns: [ ".php", ".go", ".md" ]
-#       dirs: [ "." ]
+#       patterns: [ ".php", ".go", ".dmd" ]
+#       dirs: [ "/app/dev" ]
 ```
 
 當然，你可以參考 [Roadrunner 手冊](https://roadrunner.dev/docs/intro-config) 建立符合專案需求的組態設定檔。
+
+## Workerman 伺服器組態設定
+
+伺服器組態設定應置於 `app/Config` 目錄下，並命名為 `Workerman.php` 。程式庫初始化後產出的預設檔案看起來會像這樣子：
+
+```php
+class Workerman extends BaseConfig
+{
+    /**
+     * Public static files location path.
+     *
+     * @var string
+     */
+    public $staticDir = '/app/dev/public';
+
+    /**
+     * Public access to files with these filename-extension is prohibited.
+     *
+     * @var array
+     */
+    public $staticForbid = ['htaccess', 'php'];
+
+    /** hide **/
+}
+```
+
+當然，你可以參考 [Workerman 手冊](https://www.workerman.net/doc/workerman/worker/count.html) 建立符合專案需求的組態設定檔。
 
 ## 開發建議
 
 ### 自動重新載入
 
-RoadRunner 預設的情況下，必須在每次修改 php 檔案後重啟伺服器，你所做的修改才會生效，這在開發上似乎不那麼友善。
+RoadRunner 與 Workerman 在預設的情況下，必須在每次修改 php 檔案後重啟伺服器，你所做的修改才會生效，這在開發上似乎不那麼友善。
+
+#### RoadRunner
 
 你可以修改你的 `.rr.yaml` 組態設定檔案，加入以下設定後以 `-d` 開發模式啟動 RoadRunner Server，它將會自動偵測 PHP 檔案是否修改，並即時重新載入 Worker 。
 
@@ -95,7 +124,15 @@ reload:
       dirs: [ "." ]
 ```
 
-`reload` 是非常耗費資源的，請不要在正式環境中打開這個選項。
+#### Workerman 
+
+你可以修改你的 `app/Config/Workerman.php` 組態設定檔案，加入以下設定後重起伺服器。
+
+```php
+public $autoReload = true;
+```
+
+> 注意 `reload` 是非常耗費資源的，請不要在正式環境中打開這個選項。
 
 ### 使用 Codeigniter4 Request 與 Response 物件
 
@@ -143,7 +180,9 @@ class Home extends BaseController
 
 ### 在只有一個 Worker 的環境中開發與除錯
 
-因為 RoadRunner 與其他伺服器軟體（Nginx、Apache）有著根本上的不同，每個 Codeigniter4 將會以 Worker 的形式持久化於記憶體中，HTTP 的請求會重複利用到這些 Worker 進行處裡。所以，我們最好在只有單個 Worker 的情況下開發軟體並測試是否穩定，以證明在多個 Woker 的實際環境中能正常運作。 
+因為 RoadRunner 與 Workerman 與其他伺服器軟體（Nginx、Apache）有著根本上的不同，每個 Codeigniter4 將會以 Worker 的形式持久化於記憶體中，HTTP 的請求會重複利用到這些 Worker 進行處裡。所以，我們最好在只有單個 Worker 的情況下開發軟體並測試是否穩定，以證明在多個 Woker 的實際環境中能正常運作。 
+
+#### RoadRunner
 
 你可以參考以下 `.rr.yaml` 設定將 Worker 的數量降到最低：
 
@@ -157,6 +196,14 @@ http:
     num_workers: 1
     # max_jobs: 64
     # debug: true
+```
+
+#### Workerman
+
+你可以參考以下 `app/Config/Workerman.php` 設定將 Worker 的數量降到最低：
+
+```php
+public $workerCount = 1;
 ```
 
 ### 資料庫連線
@@ -175,7 +222,7 @@ CIROAD_DB_AUTOCLOSE = true
 
 ### 處裡檔案上傳
 
-因為 RoadRunner Worker 無法傳遞正確的 `$_FILES` 內容，所以 Codeingiter4 的 [檔案上傳類別](https://codeigniter.tw/user_guide/libraries/uploaded_files.html) 將無法正確運作。對此，我們提供了符合 PSR-7 規範的檔案上傳類別，讓你可以正確地在 RoadRunner 中處理檔案上傳。就算你將專案切換到了其他伺服器環境（spark serve、Apache、Nginx）運作，這個類別依舊可以正常使用，並且不需要修改任何程式碼。
+因為 RoadRunner 與 Workerman Worker 無法傳遞正確的 `$_FILES` 內容，所以 Codeingiter4 的 [檔案上傳類別](https://codeigniter.tw/user_guide/libraries/uploaded_files.html) 將無法正確運作。對此，我們提供了符合 PSR-7 規範的檔案上傳類別，讓你可以正確地在 RoadRunner 中處理檔案上傳。就算你將專案切換到了其他伺服器環境（spark serve、Apache、Nginx）運作，這個類別依舊可以正常使用，並且不需要修改任何程式碼。
 
 你可以在控制器（或任何地方），以 `SDPMlab\Ci4Roadrunner\UploadedFileBridge::getPsr7UploadedFiles()` 取得使用者上傳的檔案。這個方法將回傳以 Uploaded File 物件組成的陣列。此物件可用的方法與 [PSR-7 Uploaded File Interface](https://www.php-fig.org/psr/psr-7/#36-psrhttpmessageuploadedfileinterface) 中規範的一樣。
 
@@ -233,6 +280,4 @@ class FileUploadTest extends BaseController
 
 ### 處理錯誤拋出
 
-如果你在 `-d` 開發模式中碰到了一些需要確認的變數、或物件內容，無論在程式的何處，你都可以使用全域函數 `dump()` 來將錯誤拋出到終端機上。
-
-## Workerman 伺服器組態設定
+如果你在開發環境中碰到了一些需要確認的變數、或物件內容，無論在程式的何處，你都可以使用全域函數 `dump()` 來將錯誤拋出到終端機上。

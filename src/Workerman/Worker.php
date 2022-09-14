@@ -1,10 +1,10 @@
 <?php
 
-if (file_exists('./vendor/autoload.php')) {
-    require_once './vendor/autoload.php';
+if (file_exists(__DIR__ . DIRECTORY_SEPARATOR . '../../../../autoload.php')) {
+    require_once realpath(__DIR__ . DIRECTORY_SEPARATOR . '../../../../autoload.php');
     define('FCPATH', __DIR__ . DIRECTORY_SEPARATOR);
     chdir(FCPATH);
-    $pathsConfig = realpath(FCPATH . '../../../../app/Config/Paths.php');
+    $pathsConfig = realpath(FCPATH . '../../../../../app/Config/Paths.php');
 } elseif (file_exists('../../dev/vendor/autoload.php')) {
     require_once '../../dev/vendor/autoload.php';
     define('FCPATH', __DIR__ . DIRECTORY_SEPARATOR);

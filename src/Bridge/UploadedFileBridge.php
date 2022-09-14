@@ -54,7 +54,7 @@ class UploadedFileBridge
                 self::$_instance = new UploadedFileBridge(
                     $files,
                     $isBurner,
-                    //is WorkerMan files?
+                    // is WorkerMan files?
                     $isWorkerMan
                 );
             } else {

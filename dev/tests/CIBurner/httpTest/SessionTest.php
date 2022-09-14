@@ -11,7 +11,7 @@ final class SessionTest extends CIUnitTestCase
     public function testSession()
     {
         for ($i = 0; $i < 3; $i++) {
-            //set session
+            // set session
             $client = Services::curlrequest([
                 'base_uri' => 'http://localhost:8080/',
             ], null, null, false);
@@ -23,7 +23,7 @@ final class SessionTest extends CIUnitTestCase
                 'http_errors' => false,
             ]);
             $this->assertSame(201, $response->getStatusCode());
-            //check session
+            // check session
             $setCookie = $response->getHeaders()['Set-Cookie']->getValue();
             $session   = explode('=', explode(';', $setCookie)[0]);
             $response  = $client->get('/sessionTest/getSessionText', [

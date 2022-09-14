@@ -10,8 +10,8 @@ class EntryPoint
     {
         $workDir = __DIR__ . DIRECTORY_SEPARATOR;
 
-        if (file_exists('./vendor/autoload.php')) {
-            $rrPath = realpath('./vendor/bin/rr_server');
+        if (file_exists($workDir . '../../../../autoload.php')) {
+            $rrPath = realpath($workDir . '../../../../bin/rr_server');
         } elseif (file_exists('../../dev/vendor/autoload.php')) {
             $rrPath = realpath('../../dev/vendor/bin/rr_server');
         }

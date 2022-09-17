@@ -3,7 +3,7 @@ version: "3"
 services:
     app:
         # https://dockerfile.readthedocs.io/en/latest/content/DockerImages/dockerfiles/php.html
-        image: webdevops/php:8.0-alpine
+        image: webdevops/php-dev:8.0-alpine
         ports:
             - 8080:8080
         working_dir: /app
@@ -12,5 +12,6 @@ services:
             - PHP_MAX_EXECUTION_TIME=30
             - PHP_POST_MAX_SIZE=20M
             - PHP_UPLOAD_MAX_FILESIZE=20M
+            - XDEBUG_MODE=coverage
         volumes:
             - './:/app'

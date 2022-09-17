@@ -1,0 +1,49 @@
+name: phpunit
+on:
+  pull_request:
+    branches: [ main, dev ]
+jobs:
+
+  tests:
+    runs-on: ubuntu-22.04
+    if: "!contains(github.event.head_commit.message, '[ci skip]')"
+    name: ${{ matrix.driver }}-PHP ${{ matrix.php-ver }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php-ver: ['8.0','8.1']
+        driver: ['RoadRunner', 'Workerman']
+        
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-ver }}
+          coverage: xdebug
+          extensions: curl, dev, mbstring, zip, sockets, fpm, intl, posix
+        env:
+          GITHUB_TOKEN: ${{ secrets.COMPOSER_AUTH }}
+
+      - name: Install dependencies
+        working-directory: ./dev
+        run: |
+          composer install --prefer-dist --no-progress --no-suggest
+        env:
+          COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
+
+      - name: Init Burner
+        working-directory: ./dev
+        run: |
+          php spark burner:init ${{ matrix.driver }}
+          php spark burner:start &
+      
+      - name: Test with PHPUnit
+        working-directory: ./dev
+        run: |
+          vendor/bin/phpunit -v
+        env:
+          TERM: xterm-256color

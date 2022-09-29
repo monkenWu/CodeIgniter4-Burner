@@ -28,8 +28,7 @@ class EntryPoint
         }
 
         $configFile = $config->serverConfigPath;
-
-        $start = popen("{$rrPath} -w {$workDir} -c {$configFile} serve", 'w');
+        $start = popen("{$rrPath} serve -w {$workDir} -c {$configFile}", 'w');
         pclose($start);
     }
 }

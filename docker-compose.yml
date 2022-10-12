@@ -15,3 +15,16 @@ services:
             - XDEBUG_MODE=coverage
         volumes:
             - './:/app'
+    openswoole_app:
+        build: ./dev/openswoole
+        ports:
+            - 8081:8080
+        environment: 
+            - PHP_MEMORY_LIMIT=512M
+            - PHP_MAX_EXECUTION_TIME=30
+            - PHP_POST_MAX_SIZE=20M
+            - PHP_UPLOAD_MAX_FILESIZE=20M
+            - XDEBUG_MODE=coverage
+        working_dir: /app
+        volumes:
+            - './:/app'

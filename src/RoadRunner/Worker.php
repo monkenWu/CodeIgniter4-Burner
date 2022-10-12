@@ -16,7 +16,7 @@ define('BURNER_DRIVER', 'RoadRunner');
 use Config\Paths;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7\Response;
-use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\RequestInterface;
 use Spiral\RoadRunner\Http\PSR7Worker;
 use Spiral\RoadRunner\Worker;
 
@@ -53,7 +53,7 @@ while (true) {
     // get psr7 request
     try {
         $request = $psr7->waitRequest();
-        if (! ($request instanceof ServerRequestInterface)) { // Termination request received
+        if (! ($request instanceof RequestInterface)) { // Termination request received
             break;
         }
     } catch (Exception $e) {

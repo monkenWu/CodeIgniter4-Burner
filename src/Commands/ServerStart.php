@@ -18,7 +18,7 @@ class ServerStart extends BaseCommand
         $burnerConfig = Factories::config('Burner');
 
         $driver      = $params['driver'] ?? $burnerConfig->driver;
-        $allowDriver = ['RoadRunner', 'Workerman'];
+        $allowDriver = ['RoadRunner', 'Workerman', 'OpenSwoole'];
         if (in_array($driver, $allowDriver, true) === false) {
             CLI::write(
                 CLI::color(

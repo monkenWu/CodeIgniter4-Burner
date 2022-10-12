@@ -11,7 +11,7 @@ class Burner extends BaseConfig
      *
      * @var string
      */
-    public $driver = 'RoadRunner';
+    public $driver = 'OpenSwoole';
 
     /**
      * Server config path.
@@ -21,5 +21,5 @@ class Burner extends BaseConfig
      *
      * @var string
      */
-    public $serverConfigPath = ROOTPATH . '.rr.yaml';
+    public $serverConfigPath = ROOTPATH . 'app/Config' . DIRECTORY_SEPARATOR . 'OpenSwoole.php';
 }

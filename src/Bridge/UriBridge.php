@@ -29,14 +29,13 @@ class UriBridge
         }
 
         $pathArr = explode('/', $rPath);
-
         if ($pathArr[1] === 'index.php') {
             unset($pathArr[1]);
-            array_values($pathArr);
+            $pathArr = array_values($pathArr);
         }
         if ($pathArr[count($pathArr) - 1] === '') {
             unset($pathArr[count($pathArr) - 1]);
-            array_values($pathArr);
+            $pathArr = array_values($pathArr);
         }
 
         $path = '/' . implode('/', $pathArr);

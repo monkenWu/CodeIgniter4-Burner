@@ -25,6 +25,7 @@ class App
     {
         // handle request object
         try {
+            Services::reset(true);
             $ci4Request = RequestHandler::initRequest($request, 'workerman');
         } catch (Throwable $e) {
             dump((string) $e);

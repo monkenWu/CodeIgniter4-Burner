@@ -12,7 +12,7 @@ class InitLibrary extends BaseCommand
     protected $description = 'Initialize Burner required files.';
     protected $usage       = 'burner:init [use_driver]';
     protected $arguments   = [
-        'use_driver' => 'You can choose Workerman or RoadRunner.',
+        'use_driver' => 'You can choose Workerman, RoadRunner and OpenSwoole.',
     ];
 
     public function run(array $params)
@@ -102,7 +102,7 @@ class InitLibrary extends BaseCommand
         $cnf = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'Files' . DIRECTORY_SEPARATOR . 'Workerman.php');
         $cnf = str_replace('{{static_path}}', ROOTPATH . 'public', $cnf);
         $cnf = str_replace('{{reload_path}}', realpath(APPPATH . '../'), $cnf);
-        $cnf = str_replace('{{log_path}}', realpath(WRITEPATH . 'logs' . DIRECTORY_SEPARATOR . 'workerman.log'), $cnf);
+        $cnf = str_replace('{{log_path}}', realpath(WRITEPATH . 'logs' . DIRECTORY_SEPARATOR) . 'workerman.log', $cnf);
 
         file_put_contents($configPath . 'Workerman.php', $cnf);
     }
@@ -119,7 +119,7 @@ class InitLibrary extends BaseCommand
         );
         $cnf = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'Files' . DIRECTORY_SEPARATOR . 'OpenSwoole.php');
         $cnf = str_replace('{{static_path}}', ROOTPATH . 'public', $cnf);
-        $cnf = str_replace('{{log_path}}', realpath(WRITEPATH . 'logs' . DIRECTORY_SEPARATOR . 'OpenSwoole.log'), $cnf);
+        $cnf = str_replace('{{log_path}}', realpath(WRITEPATH . 'logs' . DIRECTORY_SEPARATOR) . 'OpenSwoole.log', $cnf);
         file_put_contents($configPath . 'OpenSwoole.php', $cnf);
     }
 }

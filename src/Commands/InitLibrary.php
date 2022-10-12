@@ -117,11 +117,10 @@ class InitLibrary extends BaseCommand
             __DIR__ . DIRECTORY_SEPARATOR . 'Files' . DIRECTORY_SEPARATOR . 'Burner-OpenSwoole.php',
             $configPath . 'Burner.php'
         );
-        // $cnf = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'Files' . DIRECTORY_SEPARATOR . 'Workerman.php');
-        // $cnf = str_replace('{{static_path}}', ROOTPATH . 'public', $cnf);
-        // $cnf = str_replace('{{reload_path}}', realpath(APPPATH . '../'), $cnf);
-        // $cnf = str_replace('{{log_path}}', realpath(WRITEPATH . 'logs' . DIRECTORY_SEPARATOR . 'workerman.log'), $cnf);
-        // file_put_contents($configPath . 'Workerman.php', $cnf);
+        $cnf = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'Files' . DIRECTORY_SEPARATOR . 'OpenSwoole.php');
+        $cnf = str_replace('{{static_path}}', ROOTPATH . 'public', $cnf);
+        $cnf = str_replace('{{log_path}}', realpath(WRITEPATH . 'logs' . DIRECTORY_SEPARATOR . 'OpenSwoole.log'), $cnf);
+        file_put_contents($configPath . 'OpenSwoole.php', $cnf);
     }
 
 }

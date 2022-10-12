@@ -27,7 +27,8 @@
         "workerman/workerman": "^4.1",
         "symfony/var-dumper": "^6",
         "laminas/laminas-diactoros": "^2.8",
-        "nyholm/psr7": "^1.5"
+        "nyholm/psr7": "^1.5",
+        "imefisto/psr-swoole-native": "^1.1"
     },
     "autoload": {
 		"psr-4": {
@@ -36,7 +37,8 @@
 	},
     "require-dev": {
         "codeigniter/coding-standard": "^1.4",
-        "rector/rector": "0.12.16"
+        "rector/rector": "0.12.16",
+        "openswoole/ide-helper": "@dev"
     },
     "config": {
         "allow-plugins": {

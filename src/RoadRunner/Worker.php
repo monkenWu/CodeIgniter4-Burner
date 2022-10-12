@@ -1,13 +1,18 @@
 <?php
 
+$pathsConfig = '';
 if (file_exists(__DIR__ . DIRECTORY_SEPARATOR . '../../../../autoload.php')) {
     require_once realpath(__DIR__ . DIRECTORY_SEPARATOR . '../../../../autoload.php');
-    define('FCPATH', __DIR__ . DIRECTORY_SEPARATOR);
+    if (! defined('FCPATH')) {
+        define('FCPATH', __DIR__ . DIRECTORY_SEPARATOR);
+    }
     chdir(FCPATH);
     $pathsConfig = realpath(FCPATH . '../../../../../app/Config/Paths.php');
-} elseif (file_exists('../../dev/vendor/autoload.php')) {
-    require_once '../../dev/vendor/autoload.php';
-    define('FCPATH', __DIR__ . DIRECTORY_SEPARATOR);
+} elseif (file_exists(__DIR__ . DIRECTORY_SEPARATOR . '../../dev/vendor/autoload.php')) {
+    require_once __DIR__ . DIRECTORY_SEPARATOR . '../../dev/vendor/autoload.php';
+    if (! defined('FCPATH')) {
+        define('FCPATH', __DIR__ . DIRECTORY_SEPARATOR);
+    }
     chdir(FCPATH);
     $pathsConfig = realpath(FCPATH . '../../dev/app/Config/Paths.php');
 }
@@ -16,7 +21,7 @@ define('BURNER_DRIVER', 'RoadRunner');
 use Config\Paths;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7\Response;
-use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\RequestInterface;
 use Spiral\RoadRunner\Http\PSR7Worker;
 use Spiral\RoadRunner\Worker;
 
@@ -32,10 +37,10 @@ if (! function_exists('is_cli')) {
 /**
  * Ci4 4.2.0 init
  */
-require realpath($pathsConfig) ?: $pathsConfig;
+require_once realpath($pathsConfig) ?: $pathsConfig;
 $paths     = new Paths();
 $botstorap = rtrim($paths->systemDirectory, '\\/ ') . DIRECTORY_SEPARATOR . 'bootstrap.php';
-require realpath($botstorap);
+require_once realpath($botstorap);
 require_once SYSTEMPATH . 'Config/DotEnv.php';
 (new \CodeIgniter\Config\DotEnv(ROOTPATH))->load();
 $app = \Config\Services::codeigniter();
@@ -53,7 +58,7 @@ while (true) {
     // get psr7 request
     try {
         $request = $psr7->waitRequest();
-        if (! ($request instanceof ServerRequestInterface)) { // Termination request received
+        if (! ($request instanceof RequestInterface)) { // Termination request received
             break;
         }
     } catch (Exception $e) {

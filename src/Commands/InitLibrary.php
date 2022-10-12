@@ -18,7 +18,7 @@ class InitLibrary extends BaseCommand
     public function run(array $params)
     {
         $driver      = $params[0] ?? 'none';
-        $allowDriver = ['RoadRunner', 'Workerman'];
+        $allowDriver = ['RoadRunner', 'Workerman', 'OpenSwoole'];
         if (in_array($driver, $allowDriver, true) === false) {
             CLI::write(
                 CLI::color(
@@ -105,5 +105,21 @@ class InitLibrary extends BaseCommand
         $cnf = str_replace('{{log_path}}', realpath(WRITEPATH . 'logs' . DIRECTORY_SEPARATOR . 'workerman.log'), $cnf);
 
         file_put_contents($configPath . 'Workerman.php', $cnf);
+    }
+
+    protected function initOpenSwoole()
+    {
+        CLI::write(
+            CLI::color("\nCopy configuration files ......\n", 'blue')
+        );
+        $configPath = ROOTPATH . 'app/Config' . DIRECTORY_SEPARATOR;
+        copy(
+            __DIR__ . DIRECTORY_SEPARATOR . 'Files' . DIRECTORY_SEPARATOR . 'Burner-OpenSwoole.php',
+            $configPath . 'Burner.php'
+        );
+        $cnf = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'Files' . DIRECTORY_SEPARATOR . 'OpenSwoole.php');
+        $cnf = str_replace('{{static_path}}', ROOTPATH . 'public', $cnf);
+        $cnf = str_replace('{{log_path}}', realpath(WRITEPATH . 'logs' . DIRECTORY_SEPARATOR . 'OpenSwoole.log'), $cnf);
+        file_put_contents($configPath . 'OpenSwoole.php', $cnf);
     }
 }

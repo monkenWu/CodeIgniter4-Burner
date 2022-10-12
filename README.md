@@ -103,7 +103,7 @@ class Workerman extends BaseConfig
 
 You can create your configuration file according to the [Workerman document](https://www.workerman.net/doc/workerman/worker/count.html).
 
-## OpenSwoole 伺服器組態設定
+## OpenSwoole Server Settings
 
 The server settings are all in the `app/Config` directory `OpenSwoole.php`. The default file will look like this:
 

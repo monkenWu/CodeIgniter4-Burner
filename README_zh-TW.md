@@ -1,6 +1,6 @@
 # Codeigniter4-Burner
 
-Burner 是一款專屬於 CodeIgniter4 的開箱即用的程式庫，它支援 [RoadRunner](https://roadrunner.dev/) 與 [Workerman](https://github.com/walkor/workerman) 兩種高效能網頁伺服器。你只需要開啟一些 php 擴充套件，即可大幅度地加速你的 CodeIgniter4 應用程式，使其能承受更高的負載並同時處理更多的連線。
+Burner 是一款專屬於 CodeIgniter4 的開箱即用的程式庫，它支援 [RoadRunner](https://roadrunner.dev/) , [Workerman](https://github.com/walkor/workerman) 與 , [OpenSwoole](https://openswoole.com/) 高效能網頁伺服器。你只需要開啟一些 php 擴充套件，即可大幅度地加速你的 CodeIgniter4 應用程式，使其能承受更高的負載並同時處理更多的連線。
 
 ## 安裝
 
@@ -14,6 +14,7 @@ Burner 是一款專屬於 CodeIgniter4 的開箱即用的程式庫，它支援 [
 7. 安裝並開啟 `php-pcntl` 擴充套件
 8. 安裝並開啟 `php-posix` 擴充套件
 9. 如果你使用 `Workerman` 作為驅動。我們推薦你安裝並開啟 [php-event](https://www.php.net/manual/en/book.event.php) 擴充套件
+10. 如果你使用 `OpenSwoole` 作為驅動。請參閱官方說明書： [How to Install Open Swoole](https://openswoole.com/docs/get-started/installation)
 
 ### Composer 安裝
 
@@ -26,7 +27,7 @@ composer require monken/codeigniter4-burner
 使用程式庫提供的內建指令初始化伺服器與其所需的檔案。
 
 ```
-php spark burner:init [RoadRunner Or Workerman]
+php spark burner:init [RoadRunner, Workerman, OpenSwoole]
 ```
 
 ## 執行伺服器
@@ -102,6 +103,42 @@ class Workerman extends BaseConfig
 
 當然，你可以參考 [Workerman 手冊](https://www.workerman.net/doc/workerman/worker/count.html) 建立符合專案需求的組態設定檔。
 
+## OpenSwoole 伺服器組態設定
+
+伺服器組態設定應置於 `app/Config` 目錄下，並命名為 `OpenSwoole.php` 。程式庫初始化後產出的預設檔案看起來會像這樣子：
+
+```php
+class OpenSwoole extends BaseConfig
+{
+    /**
+     * TCP HTTP service listening ip
+     *
+     * @var string
+     */
+    public $listeningIp = '0.0.0.0';
+
+    /**
+     * TCP HTTP service listening port
+     *
+     * @var int
+     */
+    public $listeningPort = 8080;
+
+    /**
+     * SWOOLE_PROCESS or SWOOLE_BASE
+     *
+     * @var int
+     *
+     * @see https://openswoole.com/docs/modules/swoole-server-reload#server-modes-and-reloading
+     */
+    public $mode = SWOOLE_BASE;
+
+    //hide
+}
+```
+
+當然，你可以參考 [OpenSwoole HTTP 伺服器設定](https://openswoole.com/docs/modules/swoole-http-server/configuration), [OpenSwoole TCP 伺服器設定](https://openswoole.com/docs/modules/swoole-server/configuration) 等說明書，建立符合專案需求的組態設定檔。
+
 ## 開發建議
 
 ### 自動重新載入
@@ -133,6 +170,10 @@ public $autoReload = true;
 ```
 
 > 注意 `reload` 是非常耗費資源的，請不要在正式環境中打開這個選項。
+
+#### OpenSwoole
+
+> 目前 Burner 尚未支援 OpenSwoole 驅動的自動載入。
 
 ### 使用 Codeigniter4 Request 與 Response 物件
 

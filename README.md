@@ -1,6 +1,6 @@
 # CodeIgniter4-Burner
 
-Burner is an out-of-the-box library for CodeIgniter4 that supports both [RoadRunner](https://roadrunner.dev/) and [Workerman](https://github.com/walkor/workerman) high-performance web servers. All you need to do is open a few php extensions to dramatically speed up your CodeIgniter4 applications, allowing them to handle higher loads and more connections at the same time.
+Burner is an out-of-the-box library for CodeIgniter4 that supports [RoadRunner](https://roadrunner.dev/), [Workerman](https://github.com/walkor/workerman), and [OpenSwoole](https://openswoole.com/) high-performance web servers.  All you need to do is open a few php extensions to dramatically speed up your CodeIgniter4 applications, allowing them to handle higher loads and more connections at the same time.
 
 [正體中文說明書](README_zh-TW.md)
 
@@ -10,12 +10,13 @@ Burner is an out-of-the-box library for CodeIgniter4 that supports both [RoadRun
 1. CodeIgniter Framework 4.2.0^
 2. Composer
 3. PHP8^
-3. Enable `php-curl` extension
-4. Enable `php-zip` extension
-5. Enable `php-sockets` extension
-6. Enable `php-pcntl` extension
-7. Enable `php-posix` extension
-8. If you use `Workerman` driver. We recommend you to install [php-event](https://www.php.net/manual/en/book.event.php) extension
+4. Enable `php-curl` extension
+5. Enable `php-zip` extension
+6. Enable `php-sockets` extension
+7. Enable `php-pcntl` extension
+8. Enable `php-posix` extension
+9. If you use `Workerman` driver. We recommend you to install [php-event](https://www.php.net/manual/en/book.event.php) extension
+10. If you use `OpenSwoole` driver. Please read [How to Install Open Swoole](https://openswoole.com/docs/get-started/installation)
 
 ### Composer Install
 Use "Composer" to download the library and its dependencies to the project
@@ -27,7 +28,7 @@ composer require monken/codeigniter4-burner
 Initialize Server files using built-in commands in the library
 
 ```
-php spark burner:init [RoadRunner Or Workerman]
+php spark burner:init [RoadRunner, Workerman, OpenSwoole]
 ```
 
 ## Run
@@ -79,7 +80,6 @@ You can create your configuration file according to the [Roadrunner document](ht
 
 The server settings are all in the `app/Config` directory `Workerman.php`. The default file will look like this:
 
-
 ```php
 class Workerman extends BaseConfig
 {
@@ -102,6 +102,42 @@ class Workerman extends BaseConfig
 ```
 
 You can create your configuration file according to the [Workerman document](https://www.workerman.net/doc/workerman/worker/count.html).
+
+## OpenSwoole 伺服器組態設定
+
+The server settings are all in the `app/Config` directory `OpenSwoole.php`. The default file will look like this:
+
+```php
+class OpenSwoole extends BaseConfig
+{
+    /**
+     * TCP HTTP service listening ip
+     *
+     * @var string
+     */
+    public $listeningIp = '0.0.0.0';
+
+    /**
+     * TCP HTTP service listening port
+     *
+     * @var int
+     */
+    public $listeningPort = 8080;
+
+    /**
+     * SWOOLE_PROCESS or SWOOLE_BASE
+     *
+     * @var int
+     *
+     * @see https://openswoole.com/docs/modules/swoole-server-reload#server-modes-and-reloading
+     */
+    public $mode = SWOOLE_BASE;
+
+    //hide
+}
+```
+
+You can refer to the [OpenSwoole HTTP Server Settings](https://openswoole.com/docs/modules/swoole-http-server/configuration), [OpenSwoole TCP Server Settings](https://openswoole.com/docs/modules/swoole-server/configuration), etc. to crete a configuration profile that meets your project requirements.
 
 ## Development Suggestions
 
@@ -136,6 +172,10 @@ public $autoReload = true;
 ```
 
 > The `reload` function is very resource-intensive, please do not activate the option in the formal environment.
+
+#### OpenSwoole
+
+> Burner does not currently support automatic loading of OpenSwoole drivers.
 
 ### Using Codeigniter4 Request and Response object
 

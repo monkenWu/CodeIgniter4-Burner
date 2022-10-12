@@ -122,5 +122,4 @@ class InitLibrary extends BaseCommand
         $cnf = str_replace('{{log_path}}', realpath(WRITEPATH . 'logs' . DIRECTORY_SEPARATOR . 'OpenSwoole.log'), $cnf);
         file_put_contents($configPath . 'OpenSwoole.php', $cnf);
     }
-
 }

@@ -3,8 +3,8 @@
 namespace Config;
 
 use CodeIgniter\Config\BaseConfig;
-use Swoole\HTTP\Server;
 use CodeIgniter\Config\Factories;
+use Swoole\HTTP\Server;
 
 class OpenSwoole extends BaseConfig
 {
@@ -26,7 +26,8 @@ class OpenSwoole extends BaseConfig
      * SWOOLE_PROCESS or SWOOLE_BASE
      *
      * @var int
-     * @link https://openswoole.com/docs/modules/swoole-server-reload#server-modes-and-reloading
+     *
+     * @see https://openswoole.com/docs/modules/swoole-server-reload#server-modes-and-reloading
      */
     public $mode = SWOOLE_BASE;
 
@@ -34,30 +35,29 @@ class OpenSwoole extends BaseConfig
      * Swoole Setting Configuration Options
      *
      * @var array
-     * @link https://openswoole.com/docs/modules/swoole-http-server/configuration
-     * @link https://openswoole.com/docs/modules/swoole-server/configuration
+     *
+     * @see https://openswoole.com/docs/modules/swoole-http-server/configuration
+     * @see https://openswoole.com/docs/modules/swoole-server/configuration
      */
     public $config = [
-        'worker_num' => 1,
-        'max_request' => 0,
-        'document_root' => '{{static_path}}',
-        'enable_static_handler' => true,    
-        'log_level' => 0,
-        'log_file' => '{{log_path}}',    
+        'worker_num'            => 1,
+        'max_request'           => 0,
+        'document_root'         => '{{static_path}}',
+        'enable_static_handler' => true,
+        'log_level'             => 0,
+        'log_file'              => '{{log_path}}',
     ];
 
     /**
      * You can declare some additional server setting in this method.
      *
-     * @param Server $server
      * @return void
      */
-    public function initServer(Server $server){
-
-        $server->on("start", function (\Swoole\Http\Server $server) {
+    public function initServer(Server $server)
+    {
+        $server->on('start', static function (Server $server) {
             $openSwooleConfig = Factories::config('OpenSwoole');
             echo "Swoole http server is started at {$openSwooleConfig->listeningIp}:{$openSwooleConfig->listeningPort}\n";
         });
-        
     }
 }

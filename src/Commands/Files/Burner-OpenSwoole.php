@@ -21,5 +21,5 @@ class Burner extends BaseConfig
      *
      * @var string
      */
-    public $serverConfigPath = ROOTPATH . 'app/Config'  . DIRECTORY_SEPARATOR . 'OpenSwoole.php';
+    public $serverConfigPath = ROOTPATH . 'app/Config' . DIRECTORY_SEPARATOR . 'OpenSwoole.php';
 }

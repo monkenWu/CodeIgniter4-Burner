@@ -78,13 +78,13 @@ class RequestHandler
         $rHeader = self::$_rRequest->getHeaders();
 
         foreach ($rHeader as $key => $datas) {
-            if(is_string($datas)){
+            if (is_string($datas)) {
                 Services::request()->setHeader($key, $datas);
             }
-            if(is_array($datas)){
+            if (is_array($datas)) {
                 foreach ($datas as $values) {
                     Services::request()->setHeader($key, $values);
-                }    
+                }
             }
         }
     }

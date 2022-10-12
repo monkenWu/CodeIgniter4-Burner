@@ -1,13 +1,18 @@
 <?php
+
 $pathsConfig = '';
 if (file_exists(__DIR__ . DIRECTORY_SEPARATOR . '../../../../autoload.php')) {
     require_once realpath(__DIR__ . DIRECTORY_SEPARATOR . '../../../../autoload.php');
-    if (!defined('FCPATH')) define('FCPATH', __DIR__ . DIRECTORY_SEPARATOR);
+    if (! defined('FCPATH')) {
+        define('FCPATH', __DIR__ . DIRECTORY_SEPARATOR);
+    }
     chdir(FCPATH);
     $pathsConfig = realpath(FCPATH . '../../../../../app/Config/Paths.php');
 } elseif (file_exists(__DIR__ . DIRECTORY_SEPARATOR . '../../dev/vendor/autoload.php')) {
     require_once __DIR__ . DIRECTORY_SEPARATOR . '../../dev/vendor/autoload.php';
-    if (!defined('FCPATH'))  define('FCPATH', __DIR__ . DIRECTORY_SEPARATOR);
+    if (! defined('FCPATH')) {
+        define('FCPATH', __DIR__ . DIRECTORY_SEPARATOR);
+    }
     chdir(FCPATH);
     $pathsConfig = realpath(FCPATH . '../../dev/app/Config/Paths.php');
 }

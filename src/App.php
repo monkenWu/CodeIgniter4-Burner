@@ -51,10 +51,10 @@ class App
             if (! env('CIROAD_DB_AUTOCLOSE')) {
                 HandleDBConnection::reconnect();
             }
-
             $app            = \Config\Services::codeigniter();
             $GLOBALS['app'] = &$app;
             $app->initialize();
+
             $app->setContext('web')->setRequest($ci4Request)->run(returnResponse: true);
 
             $ci4Response = Services::response();

@@ -3,7 +3,6 @@
 namespace Config;
 
 use CodeIgniter\Config\BaseConfig;
-use CodeIgniter\Config\Factories;
 use Swoole\HTTP\Server;
 
 class OpenSwoole extends BaseConfig
@@ -56,8 +55,6 @@ class OpenSwoole extends BaseConfig
     public function initServer(Server $server)
     {
         $server->on('start', static function (Server $server) {
-            $openSwooleConfig = Factories::config('OpenSwoole');
-            echo "Swoole http server is started at {$openSwooleConfig->listeningIp}:{$openSwooleConfig->listeningPort}\n";
         });
     }
 }

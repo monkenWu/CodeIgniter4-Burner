@@ -95,19 +95,20 @@ class Exceptions
                 'trace' => $exception->getTraceAsString(),
             ]);
         }
-
         if (! is_cli()) {
             $this->response->setStatusCode($statusCode);
             $header = "HTTP/{$this->request->getProtocolVersion()} {$this->response->getStatusCode()} {$this->response->getReasonPhrase()}";
+
             header($header, true, $statusCode);
+
             if (strpos($this->rRequest->getHeaderLine('accept'), 'text/html') === false) {
                 $msg = $this->collectVars($exception, $statusCode);
-                if (ENVIRONMENT === 'development') {
+                if (ENVIRONMENT === 'development' && SHOW_DEBUG_BACKTRACE) {
                     $this->response->setBody(json_encode($msg));
                 }
                 $this->response->setStatusCode($statusCode);
 
-                return new ResponseBridge($this->response->send(), $this->rRequest);
+                return new ResponseBridge($this->response, $this->rRequest);
             }
         }
 
@@ -149,7 +150,7 @@ class Exceptions
         $view          = 'production.php';
         $template_path = rtrim($template_path, '/ ') . '/';
 
-        if (str_ireplace(['off', 'none', 'no', 'false', 'null'], '', ini_get('display_errors'))) {
+        if (str_ireplace(['off', 'none', 'no', 'false', 'null'], '', ini_get('display_errors')) && ENVIRONMENT === 'development' && SHOW_DEBUG_BACKTRACE) {
             $view = 'error_exception.php';
         }
 

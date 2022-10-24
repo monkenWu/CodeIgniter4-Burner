@@ -1,4 +1,5 @@
 <?php
+namespace Monken\CIBurner\OpenSwoole;
 
 require_once realpath(__DIR__ . '/../FrontLoader.php');
 
@@ -11,40 +12,62 @@ use Nyholm\Psr7\Factory\Psr17Factory;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 
-/** @var \Config\OpenSwoole */
-$openSwooleConfig = Factories::config('OpenSwoole');
-$server           = new Swoole\HTTP\Server(
-    $openSwooleConfig->listeningIp,
-    $openSwooleConfig->listeningPort,
-    $openSwooleConfig->mode
-);
-$server->set($openSwooleConfig->config);
-$openSwooleConfig->initServer($server);
-$uriFactory          = new Psr17Factory();
-$streamFactory       = new Psr17Factory();
-$uploadedFileFactory = new Psr17Factory();
-$responseMerger      = new ResponseMerger();
+class Worker
+{
+    protected static $uriFactory;
+    protected static $streamFactory;
+    protected static $uploadedFileFactory;
+    protected static $responseMerger;
+    private static $init = false;
 
-$server->on('request', static function (Request $swooleRequest, Response $swooleResponse) use ($uriFactory, $streamFactory, $uploadedFileFactory, $responseMerger) {
-    if (null === $swooleRequest->files) {
-        $swooleRequest->files = [];
+    protected static function init()
+    {
+        self::$uriFactory          = new Psr17Factory();
+        self::$streamFactory       = new Psr17Factory();
+        self::$uploadedFileFactory = new Psr17Factory();
+        self::$responseMerger      = new ResponseMerger();
     }
 
-    $psrRequest = (new PsrRequest(
-        $swooleRequest,
-        $uriFactory,
-        $streamFactory,
-        $uploadedFileFactory
-    ))->withUploadedFiles($swooleRequest->files);
+    /**
+     * Burner handles CodeIgniter4 entry points
+     * and will automatically execute the Swoole-Server-end Sending Response.
+     *
+     * @param Request $swooleRequest
+     * @param Response $swooleResponse
+     * @return void
+     */
+    public static function mainProcesser(Request $swooleRequest, Response $swooleResponse){
+        if(self::$init === false) self::init();
+        if (null === $swooleRequest->files) {
+            $swooleRequest->files = [];
+        }
+    
+        $psrRequest = (new PsrRequest(
+            $swooleRequest,
+            self::$uriFactory,
+            self::$streamFactory,
+            self::$uploadedFileFactory
+        ))->withUploadedFiles($swooleRequest->files);
+    
+        $response = \Monken\CIBurner\App::run($psrRequest);
+    
+        self::$responseMerger->toSwoole(
+            $response,
+            $swooleResponse
+        )->end();
+    
+        \Monken\CIBurner\App::clean();
+    }
+}
 
-    $response = \Monken\CIBurner\App::run($psrRequest);
-
-    $responseMerger->toSwoole(
-        $response,
-        $swooleResponse
-    )->end();
-
-    \Monken\CIBurner\App::clean();
-});
-
+/** @var \Config\OpenSwoole */
+$openSwooleConfig = Factories::config('OpenSwoole');
+$server           = new ($openSwooleConfig->httpDriver)(
+    $openSwooleConfig->listeningIp,
+    $openSwooleConfig->listeningPort,
+    $openSwooleConfig->mode,
+    $openSwooleConfig->type
+);
+$server->set($openSwooleConfig->config);
+$openSwooleConfig->server($server);
 $server->start();

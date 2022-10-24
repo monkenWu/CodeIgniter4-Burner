@@ -3,10 +3,22 @@
 namespace Config;
 
 use CodeIgniter\Config\BaseConfig;
+use Monken\CIBurner\OpenSwoole\Worker;
+use Swoole\Http\Request;
+use Swoole\Http\Response;
 use Swoole\HTTP\Server;
 
 class OpenSwoole extends BaseConfig
 {
+
+    /**
+     * Swoole Http Driver.
+     * You can use Swoole\HTTP\Server or Swoole\WebSocket\Server .
+     *
+     * @var string
+     */
+    public $httpDriver = Server::class;
+
     /**
      * TCP HTTP service listening ip
      *
@@ -22,13 +34,20 @@ class OpenSwoole extends BaseConfig
     public $listeningPort = 8080;
 
     /**
-     * SWOOLE_PROCESS or SWOOLE_BASE
+     * Which mode to start the server in SWOOLE_PROCESS or SWOOLE_BASE
      *
      * @var int
-     *
-     * @see https://openswoole.com/docs/modules/swoole-server-reload#server-modes-and-reloading
+     * @see https://openswoole.com/docs/modules/swoole-server-construct
      */
     public $mode = SWOOLE_BASE;
+
+    /**
+     * The socket type of the server.
+     *
+     * @var int
+     * @see https://openswoole.com/docs/modules/swoole-server-construct
+     */
+    public $type = SWOOLE_SOCK_TCP;
 
     /**
      * Swoole Setting Configuration Options
@@ -52,9 +71,11 @@ class OpenSwoole extends BaseConfig
      *
      * @return void
      */
-    public function initServer(Server $server)
+    public function server(Server $server)
     {
-        $server->on('start', static function (Server $server) {
+        $server->on('request', static function (Request $swooleRequest, Response $swooleResponse){
+            // Burner handles CodeIgniter4 entry points.
+            Worker::mainProcesser($swooleRequest, $swooleResponse);
         });
     }
 }

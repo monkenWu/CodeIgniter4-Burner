@@ -10,7 +10,6 @@ use Swoole\HTTP\Server;
 
 class OpenSwoole extends BaseConfig
 {
-
     /**
      * Swoole Http Driver.
      * You can use Swoole\HTTP\Server or Swoole\WebSocket\Server .
@@ -37,6 +36,7 @@ class OpenSwoole extends BaseConfig
      * Which mode to start the server in SWOOLE_PROCESS or SWOOLE_BASE
      *
      * @var int
+     *
      * @see https://openswoole.com/docs/modules/swoole-server-construct
      */
     public $mode = SWOOLE_BASE;
@@ -45,6 +45,7 @@ class OpenSwoole extends BaseConfig
      * The socket type of the server.
      *
      * @var int
+     *
      * @see https://openswoole.com/docs/modules/swoole-server-construct
      */
     public $type = SWOOLE_SOCK_TCP;
@@ -73,7 +74,7 @@ class OpenSwoole extends BaseConfig
      */
     public function server(Server $server)
     {
-        $server->on('request', static function (Request $swooleRequest, Response $swooleResponse){
+        $server->on('request', static function (Request $swooleRequest, Response $swooleResponse) {
             // Burner handles CodeIgniter4 entry points.
             Worker::mainProcesser($swooleRequest, $swooleResponse);
         });

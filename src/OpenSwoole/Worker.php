@@ -1,4 +1,5 @@
 <?php
+
 namespace Monken\CIBurner\OpenSwoole;
 
 require_once realpath(__DIR__ . '/../FrontLoader.php');
@@ -32,30 +33,31 @@ class Worker
      * Burner handles CodeIgniter4 entry points
      * and will automatically execute the Swoole-Server-end Sending Response.
      *
-     * @param Request $swooleRequest
-     * @param Response $swooleResponse
      * @return void
      */
-    public static function mainProcesser(Request $swooleRequest, Response $swooleResponse){
-        if(self::$init === false) self::init();
+    public static function mainProcesser(Request $swooleRequest, Response $swooleResponse)
+    {
+        if (self::$init === false) {
+            self::init();
+        }
         if (null === $swooleRequest->files) {
             $swooleRequest->files = [];
         }
-    
+
         $psrRequest = (new PsrRequest(
             $swooleRequest,
             self::$uriFactory,
             self::$streamFactory,
             self::$uploadedFileFactory
         ))->withUploadedFiles($swooleRequest->files);
-    
+
         $response = \Monken\CIBurner\App::run($psrRequest);
-    
+
         self::$responseMerger->toSwoole(
             $response,
             $swooleResponse
         )->end();
-    
+
         \Monken\CIBurner\App::clean();
     }
 }

@@ -5,7 +5,6 @@ require_once realpath(__DIR__ . '/../FrontLoader.php');
 define('BURNER_DRIVER', 'WorkerMan');
 
 use CodeIgniter\Config\Factories;
-use Config\Paths;
 use Monken\CIBurner\Workerman\Config;
 use Nyholm\Psr7\ServerRequest as PsrRequest;
 use Workerman\Connection\TcpConnection;

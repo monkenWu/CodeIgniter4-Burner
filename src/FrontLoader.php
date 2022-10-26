@@ -4,7 +4,7 @@ $vendorPath = '';
 /**
  * Find autoload.php to locate the desired file location.
  */
-if (file_exists(__DIR__ . DIRECTORY_SEPARATOR . '..../../../autoload.php')) {
+if (file_exists(__DIR__ . DIRECTORY_SEPARATOR . '../../../autoload.php')) {
     // If you use Burner through 'Composer-Require'.
     $vendorPath = __DIR__ . DIRECTORY_SEPARATOR . '../../../';
 } elseif (file_exists(__DIR__ . DIRECTORY_SEPARATOR . '../dev/vendor/autoload.php')) {

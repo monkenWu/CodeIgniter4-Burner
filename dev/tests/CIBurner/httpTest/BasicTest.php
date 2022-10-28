@@ -120,7 +120,7 @@ final class BasicTest extends CIUnitTestCase
         $client = Services::curlrequest([
             'base_uri' => 'http://localhost:8080/',
         ], null, null, false);
-        
+
         $response = $client->get('/basicTest/i18n', [
             'headers' => [
                 'Accept-Language' => 'en-US;q=0.8,en;q=0.7',
@@ -137,5 +137,4 @@ final class BasicTest extends CIUnitTestCase
         $this->assertSame(200, $response->getStatusCode());
         $this->assertSame('正體中文', $response->getBody());
     }
-
 }

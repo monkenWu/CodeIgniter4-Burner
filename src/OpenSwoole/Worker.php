@@ -7,7 +7,7 @@ require_once realpath(__DIR__ . '/../FrontLoader.php');
 define('BURNER_DRIVER', 'OpenSwoole');
 
 use CodeIgniter\Config\Factories;
-use \CodeIgniter\Events\Events;
+use CodeIgniter\Events\Events;
 use Imefisto\PsrSwoole\ResponseMerger;
 use Imefisto\PsrSwoole\ServerRequest as PsrRequest;
 use Nyholm\Psr7\Factory\Psr17Factory;
@@ -26,24 +26,21 @@ class Worker
     /**
      * Init Worker
      *
-     * @param \Swoole\HTTP\Server|\Swoole\WebSocket\Server $server
      * @return void
      */
-    public static function init(\Swoole\HTTP\Server|\Swoole\WebSocket\Server $server)
+    public static function init(Server|\Swoole\WebSocket\Server $server)
     {
         self::$uriFactory          = new Psr17Factory();
         self::$streamFactory       = new Psr17Factory();
         self::$uploadedFileFactory = new Psr17Factory();
         self::$responseMerger      = new ResponseMerger();
-        self::$server = $server;
+        self::$server              = $server;
     }
 
     /**
      * get OpenSwoole Server Instance
-     *
-     * @return \Swoole\HTTP\Server|\Swoole\WebSocket\Server
      */
-    public static function getServer(): \Swoole\HTTP\Server|\Swoole\WebSocket\Server
+    public static function getServer(): Server|\Swoole\WebSocket\Server
     {
         return self::$server;
     }
@@ -73,7 +70,7 @@ class Worker
             $response,
             $swooleResponse
         )->end();
-        
+
         Events::trigger('burnerAfterSendResponse', self::$server);
 
         \Monken\CIBurner\App::clean();

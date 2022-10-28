@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'negotiate' => 'english'
+    'negotiate' => 'english',
 ];

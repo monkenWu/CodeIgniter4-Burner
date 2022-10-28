@@ -15,7 +15,7 @@ class RequestHandler
 
     public static function initRequest(ServerRequestInterface $rRequest)
     {
-        $appConfig = new App();
+        $appConfig       = new App();
         self::$_rRequest = $rRequest;
         self::setFile();
 

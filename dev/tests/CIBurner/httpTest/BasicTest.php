@@ -114,4 +114,28 @@ final class BasicTest extends CIUnitTestCase
         }
         $this->assertNotSame($token[1], $tokens[0]);
     }
+
+    public function testI18n()
+    {
+        $client = Services::curlrequest([
+            'base_uri' => 'http://localhost:8080/',
+        ], null, null, false);
+        
+        $response = $client->get('/basicTest/i18n', [
+            'headers' => [
+                'Accept-Language' => 'en-US;q=0.8,en;q=0.7',
+            ],
+        ]);
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('english', $response->getBody());
+
+        $response = $client->get('/basicTest/i18n', [
+            'headers' => [
+                'Accept-Language' => 'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7',
+            ],
+        ]);
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('正體中文', $response->getBody());
+    }
+
 }

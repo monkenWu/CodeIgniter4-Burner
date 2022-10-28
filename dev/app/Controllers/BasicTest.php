@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use CodeIgniter\API\ResponseTrait;
+use CodeIgniter\Config\Services;
 
 /**
  * @internal
@@ -82,5 +83,15 @@ final class BasicTest extends BaseController
         $this->response->setHeader('X-Set-Auth-Token', uniqid());
 
         return $this->respond(['status' => true]);
+    }
+
+    /**
+     * i18n test
+     *
+     * @return void
+     */
+    public function i18n()
+    {
+        echo lang('Burner.negotiate');
     }
 }

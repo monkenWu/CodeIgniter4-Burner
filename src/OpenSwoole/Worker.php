@@ -11,9 +11,12 @@ use CodeIgniter\Events\Events;
 use Imefisto\PsrSwoole\ResponseMerger;
 use Imefisto\PsrSwoole\ServerRequest as PsrRequest;
 use Nyholm\Psr7\Factory\Psr17Factory;
+use Psr\Http\Message\ServerRequestInterface;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
-use Swoole\Http\Server;
+use Swoole\Http\Server as HttpServer;
+use Swoole\WebSocket\Server as WebSocketServer;
+use Swoole\WebSocket\Frame;
 
 class Worker
 {
@@ -21,14 +24,15 @@ class Worker
     protected static Psr17Factory $streamFactory;
     protected static Psr17Factory $uploadedFileFactory;
     protected static ResponseMerger $responseMerger;
-    protected static \Swoole\HTTP\Server|\Swoole\WebSocket\Server $server;
+    protected static HttpServer|WebSocketServer $server;
+    protected static ?Frame $frame = null;
 
     /**
      * Init Worker
      *
      * @return void
      */
-    public static function init(Server|\Swoole\WebSocket\Server $server)
+    public static function init(HttpServer|WebSocketServer $server)
     {
         self::$uriFactory          = new Psr17Factory();
         self::$streamFactory       = new Psr17Factory();
@@ -39,10 +43,25 @@ class Worker
 
     /**
      * get OpenSwoole Server Instance
+     * 
+     * @return \Swoole\Http\Server|Swoole\WebSocket\Server
      */
-    public static function getServer(): Server|\Swoole\WebSocket\Server
+    public static function getServer(): HttpServer|WebSocketServer
     {
         return self::$server;
+    }
+
+    /**
+     * get OpenSwoole Websocket-Frame Instance
+     * 
+     * @return \Swoole\WebSocket\Frame
+     */
+    public static function getFrame(): Frame
+    {
+        if(self::$frame === null){
+            throw new \Exception('You must start the burner through websocketProcesser to get the Frame instance.');
+        }
+        return self::$frame;
     }
 
     /**
@@ -51,7 +70,40 @@ class Worker
      *
      * @return void
      */
-    public static function mainProcesser(Request $swooleRequest, Response $swooleResponse)
+    public static function httpProcesser(Request $swooleRequest, Response $swooleResponse)
+    {
+        $response = \Monken\CIBurner\App::run(self::requestFactory($swooleRequest));
+
+        self::$responseMerger->toSwoole(
+            $response,
+            $swooleResponse
+        )->end();
+
+        Events::trigger('burnerAfterSendResponse', self::$server);
+
+        \Monken\CIBurner\App::clean();
+    }
+
+    public static function websocketProcesser(Request $swooleRequest, Frame $frame)
+    {
+        self::$frame = $frame;
+        \Monken\CIBurner\App::run(self::requestFactory($swooleRequest));
+        \Monken\CIBurner\App::clean();
+    }
+
+    public static function websocketPush($data, int $opcode = 1)
+    {
+        self::$server->push(self::$frame->fd, $data, $opcode);
+        Events::trigger('burnerAfterPushMessage', self::$server);
+    }
+
+    /**
+     * Convert Swoole-Request to psr7-Request
+     *
+     * @param Request $swooleRequest
+     * @return ServerRequestInterface
+     */
+    public static function requestFactory(Request $swooleRequest): ServerRequestInterface
     {
         if (null === $swooleRequest->files) {
             $swooleRequest->files = [];
@@ -64,16 +116,7 @@ class Worker
             self::$uploadedFileFactory
         ))->withUploadedFiles($swooleRequest->files);
 
-        $response = \Monken\CIBurner\App::run($psrRequest);
-
-        self::$responseMerger->toSwoole(
-            $response,
-            $swooleResponse
-        )->end();
-
-        Events::trigger('burnerAfterSendResponse', self::$server);
-
-        \Monken\CIBurner\App::clean();
+        return $psrRequest;
     }
 }
 

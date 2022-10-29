@@ -21,7 +21,7 @@ class App
     /**
      * run ci4 app
      */
-    public static function run(ServerRequestInterface $request): ResponseInterface
+    public static function run(ServerRequestInterface $request, bool $isWebsocket = false): ResponseInterface|bool
     {
         // handle request object
         try {
@@ -54,7 +54,6 @@ class App
             $app            = \Config\Services::codeigniter();
             $GLOBALS['app'] = &$app;
             $app->initialize();
-
             $app->setContext('web')->setRequest($ci4Request)->run(returnResponse: true);
 
             $ci4Response = Services::response();

@@ -26,6 +26,7 @@ class Worker
     protected static Psr17Factory $uploadedFileFactory;
     protected static ResponseMerger $responseMerger;
     protected static HttpServer|WebSocketServer $server;
+    protected static ServerRequestInterface $websocketRequest;
     protected static ?Frame $frame = null;
 
     /**
@@ -84,17 +85,71 @@ class Worker
         \Monken\CIBurner\App::clean();
     }
 
-    public static function websocketProcesser(Request $swooleRequest, Frame $frame)
+    /**
+     * Please pass the Swoole-Request object in the Swoole Webscoket Open-Event to initialize the worker.
+     *
+     * @return void
+     */
+    public static function initializeWebsocket(Request $swooleRequest)
     {
-        self::$frame = $frame;
-        \Monken\CIBurner\App::run(self::requestFactory($swooleRequest));
-        \Monken\CIBurner\App::clean();
+        if (self::$server->isEstablished($swooleRequest->fd)) {
+            self::$websocketRequest = self::requestFactory($swooleRequest);
+        }
     }
 
-    public static function websocketPush($data, int $opcode = 1)
+    /**
+     * Burner handles CodeIgniter4 entry points.
+     * Use this function in the Swoole Websocket Message-Event.
+     *
+     * @return void
+     */
+    public static function websocketProcesser(Frame $frame)
     {
-        self::$server->push(self::$frame->fd, $data, $opcode);
-        Events::trigger('burnerAfterPushMessage', self::$server);
+        if (self::$server->isEstablished($frame->fd)) {
+            self::$frame = $frame;
+            \Monken\CIBurner\App::run(self::$websocketRequest, true);
+            \Monken\CIBurner\App::clean();
+        }
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param mixed $data
+     *
+     * @return void
+     */
+    public static function websocketPush($data, int $opcode = 1, ?int $fd = null)
+    {
+        if (self::$server->isEstablished($fd ?? self::$frame->fd)) {
+            self::$server->push($fd ?? self::$frame->fd, $data, $opcode);
+            Events::trigger('burnerAfterPushMessage', self::$server, self::$frame);
+        }
+    }
+
+    /**
+     * Push messages to all client.
+     *
+     * @param callable $messageProcesser $messageProcesser(int $fd)
+     *
+     * @return void
+     */
+    public static function websocketPushAll(callable $messageProcesser, int $opcode = 1)
+    {
+        foreach (self::$server->connections as $fd) {
+            if (self::$server->isEstablished($fd)) {
+                $message = $messageProcesser($fd);
+                if (null === $message) {
+                    continue;
+                }
+                if (is_array($message)) {
+                    self::websocketPush($message['message'], $message['opcode'], $fd);
+                } else {
+                    self::$server->push($fd, $message, $opcode);
+                }
+            }
+        }
+        Events::trigger('burnerAfterPushAllMessage', self::$server);
     }
 
     /**

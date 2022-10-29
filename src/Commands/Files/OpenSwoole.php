@@ -74,9 +74,19 @@ class OpenSwoole extends BaseConfig
      */
     public function server(Server $server)
     {
+        $config = $this;
+
         $server->on('request', static function (Request $swooleRequest, Response $swooleResponse) {
             // Burner handles CodeIgniter4 entry points.
-            Worker::mainProcesser($swooleRequest, $swooleResponse);
+            Worker::httpProcesser($swooleRequest, $swooleResponse);
+        });
+
+        $server->on('Start', static function (Server $server) use ($config) {
+            fwrite(STDOUT, sprintf(
+                "Swoole http server is started at %s:%d \n",
+                $config->listeningIp,
+                $config->listeningPort
+            ));
         });
     }
 }

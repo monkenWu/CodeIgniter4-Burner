@@ -12,13 +12,13 @@
         "laminas/laminas-diactoros": "^2.16",
         "symfony/var-dumper": "^6",
         "spiral/roadrunner": "^2",
-        "imefisto/psr-swoole-native": "^1.1"
+        "imefisto/psr-swoole-native": "^1.1",
+        "openswoole/ide-helper": "^4.11"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9",
         "mikey179/vfsstream": "^1.6",
-        "phpunit/phpunit": "^9.1",
-        "openswoole/ide-helper": "@dev"
+        "phpunit/phpunit": "^9.1"
     },
     "suggest": {
         "ext-fileinfo": "Improves mime type detection for files"

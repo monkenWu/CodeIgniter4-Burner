@@ -8,6 +8,7 @@ define('BURNER_DRIVER', 'OpenSwoole');
 
 use CodeIgniter\Config\Factories;
 use CodeIgniter\Events\Events;
+use Exception;
 use Imefisto\PsrSwoole\ResponseMerger;
 use Imefisto\PsrSwoole\ServerRequest as PsrRequest;
 use Nyholm\Psr7\Factory\Psr17Factory;
@@ -15,8 +16,8 @@ use Psr\Http\Message\ServerRequestInterface;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\Http\Server as HttpServer;
-use Swoole\WebSocket\Server as WebSocketServer;
 use Swoole\WebSocket\Frame;
+use Swoole\WebSocket\Server as WebSocketServer;
 
 class Worker
 {
@@ -43,7 +44,7 @@ class Worker
 
     /**
      * get OpenSwoole Server Instance
-     * 
+     *
      * @return \Swoole\Http\Server|Swoole\WebSocket\Server
      */
     public static function getServer(): HttpServer|WebSocketServer
@@ -53,14 +54,13 @@ class Worker
 
     /**
      * get OpenSwoole Websocket-Frame Instance
-     * 
-     * @return \Swoole\WebSocket\Frame
      */
     public static function getFrame(): Frame
     {
-        if(self::$frame === null){
-            throw new \Exception('You must start the burner through websocketProcesser to get the Frame instance.');
+        if (self::$frame === null) {
+            throw new Exception('You must start the burner through websocketProcesser to get the Frame instance.');
         }
+
         return self::$frame;
     }
 
@@ -99,9 +99,6 @@ class Worker
 
     /**
      * Convert Swoole-Request to psr7-Request
-     *
-     * @param Request $swooleRequest
-     * @return ServerRequestInterface
      */
     public static function requestFactory(Request $swooleRequest): ServerRequestInterface
     {
@@ -109,14 +106,12 @@ class Worker
             $swooleRequest->files = [];
         }
 
-        $psrRequest = (new PsrRequest(
+        return (new PsrRequest(
             $swooleRequest,
             self::$uriFactory,
             self::$streamFactory,
             self::$uploadedFileFactory
         ))->withUploadedFiles($swooleRequest->files);
-
-        return $psrRequest;
     }
 }
 

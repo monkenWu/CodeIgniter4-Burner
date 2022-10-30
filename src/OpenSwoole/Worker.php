@@ -130,13 +130,14 @@ class Worker
     }
 
     /**
-     * Undocumented function
+     * Push message to client.
      *
-     * @param mixed $data
+     * @param mixed    $data
+     * @param int|null $fd   If not passed in, it will be pushed to the current fd
      *
      * @return void
      */
-    public static function websocketPush($data, ?int $fd = null, int $opcode = 1)
+    public static function push($data, ?int $fd = null, int $opcode = 1)
     {
         $fd ??= self::$frame->fd;
         if (self::$server->isEstablished($fd)) {
@@ -152,7 +153,7 @@ class Worker
      *
      * @return void
      */
-    public static function websocketPushAll(callable $messageProcesser, int $opcode = 1)
+    public static function pushAll(callable $messageProcesser, int $opcode = 1)
     {
         foreach (self::$server->connections as $fd) {
             if (self::$server->isEstablished($fd)) {
@@ -161,9 +162,9 @@ class Worker
                     continue;
                 }
                 if (is_array($message)) {
-                    self::websocketPush($message['message'], $fd, $message['opcode']);
+                    self::push($message['message'], $fd, $message['opcode']);
                 } else {
-                    self::websocketPush($message, $fd, $opcode);
+                    self::push($message, $fd, $opcode);
                 }
             }
         }

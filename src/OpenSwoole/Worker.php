@@ -119,10 +119,11 @@ class Worker
      *
      * @return void
      */
-    public static function websocketPush($data, int $opcode = 1, ?int $fd = null)
+    public static function websocketPush($data, ?int $fd = null, int $opcode = 1)
     {
-        if (self::$server->isEstablished($fd ?? self::$frame->fd)) {
-            self::$server->push($fd ?? self::$frame->fd, $data, $opcode);
+        $fd ??= self::$frame->fd;
+        if (self::$server->isEstablished($fd)) {
+            self::$server->push($fd, $data, $opcode);
             Events::trigger('burnerAfterPushMessage', self::$server, self::$frame);
         }
     }
@@ -143,9 +144,9 @@ class Worker
                     continue;
                 }
                 if (is_array($message)) {
-                    self::websocketPush($message['message'], $message['opcode'], $fd);
+                    self::websocketPush($message['message'], $fd, $message['opcode']);
                 } else {
-                    self::$server->push($fd, $message, $opcode);
+                    self::websocketPush($message, $fd, $opcode);
                 }
             }
         }

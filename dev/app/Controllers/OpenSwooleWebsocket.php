@@ -15,10 +15,10 @@ class OpenSwooleWebsocket extends BaseController
     {
         $nowUserFd = Worker::getFrame()->fd;
         $data      = Worker::getFrame()->data;
-        Worker::websocketPush('get message!');
+        Worker::websocketPush('Controller Get Message!');
         Worker::websocketPushAll(static function (int $fd) use ($nowUserFd, $data) {
             if ($fd === $nowUserFd) {
-                return sprintf('send message, your id is %d .', $fd);
+                return sprintf('You(%d) say: %s', $fd, $data);
             }
 
             return sprintf('%d says: %s', $nowUserFd, $data);

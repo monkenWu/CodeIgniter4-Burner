@@ -6,7 +6,7 @@ use CodeIgniter\Config\BaseConfig;
 use Monken\CIBurner\OpenSwoole\Worker;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
-use Swoole\HTTP\Server;
+use Swoole\Http\Server;
 
 class OpenSwoole extends BaseConfig
 {
@@ -75,18 +75,19 @@ class OpenSwoole extends BaseConfig
     public function server(Server $server)
     {
         $config = $this;
+        $server->on('Start', static function (Server $server) use ($config) {
+            fwrite(STDOUT, sprintf(
+                'Swoole %s server is started at %s:%d %s',
+                explode('\\', $config->httpDriver)[1],
+                $config->listeningIp,
+                $config->listeningPort,
+                PHP_EOL
+            ));
+        });
 
         $server->on('request', static function (Request $swooleRequest, Response $swooleResponse) {
             // Burner handles CodeIgniter4 entry points.
             Worker::httpProcesser($swooleRequest, $swooleResponse);
-        });
-
-        $server->on('Start', static function (Server $server) use ($config) {
-            fwrite(STDOUT, sprintf(
-                "Swoole http server is started at %s:%d \n",
-                $config->listeningIp,
-                $config->listeningPort
-            ));
         });
     }
 }

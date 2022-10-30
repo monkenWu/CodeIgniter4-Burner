@@ -8,7 +8,6 @@ define('BURNER_DRIVER', 'OpenSwoole');
 
 use CodeIgniter\Config\Factories;
 use CodeIgniter\Events\Events;
-use Exception;
 use Imefisto\PsrSwoole\ResponseMerger;
 use Imefisto\PsrSwoole\ServerRequest as PsrRequest;
 use Nyholm\Psr7\Factory\Psr17Factory;
@@ -26,7 +25,6 @@ class Worker
     protected static Psr17Factory $uploadedFileFactory;
     protected static ResponseMerger $responseMerger;
     protected static HttpServer|WebSocketServer $server;
-    protected static ?Frame $frame = null;
 
     /**
      * Websocket Request Pool
@@ -57,18 +55,6 @@ class Worker
     public static function getServer(): HttpServer|WebSocketServer
     {
         return self::$server;
-    }
-
-    /**
-     * get OpenSwoole Websocket-Frame Instance
-     */
-    public static function getFrame(): Frame
-    {
-        if (self::$frame === null) {
-            throw new Exception('You must start the burner through websocketProcesser to get the Frame instance.');
-        }
-
-        return self::$frame;
     }
 
     /**
@@ -122,10 +108,11 @@ class Worker
     public static function websocketProcesser(Frame $frame)
     {
         if ($websocketRequest = (self::$websocketRequestPool['fd' . $frame->fd] ?? false)) {
-            self::$frame = $frame;
-            \Monken\CIBurner\App::run(self::requestFactory($websocketRequest), true);
+            $psr7Request = self::requestFactory($websocketRequest)
+                ->withBody(self::$streamFactory->createStream(json_encode($frame)))
+                ->withHeader('Content-Type', 'application/json');
+            \Monken\CIBurner\App::run($psr7Request, true);
             \Monken\CIBurner\App::clean();
-            self::$frame = null;
         }
     }
 
@@ -137,12 +124,11 @@ class Worker
      *
      * @return void
      */
-    public static function push($data, ?int $fd = null, int $opcode = 1)
+    public static function push($data, int $fd, int $opcode = 1)
     {
-        $fd ??= self::$frame->fd;
         if (self::$server->isEstablished($fd)) {
             self::$server->push($fd, $data, $opcode);
-            Events::trigger('burnerAfterPushMessage', self::$server, self::$frame);
+            Events::trigger('burnerAfterPushMessage', self::$server, $fd);
         }
     }
 

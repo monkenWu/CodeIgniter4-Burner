@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use CodeIgniter\Config\Services;
 use Monken\CIBurner\OpenSwoole\Worker;
 
 class OpenSwooleWebsocket extends BaseController
@@ -13,11 +14,12 @@ class OpenSwooleWebsocket extends BaseController
 
     public function socket()
     {
-        $nowUserFd = Worker::getFrame()->fd;
-        $data      = Worker::getFrame()->data;
+        $frameData = Services::request()->getJson();
+        $nowUserFd = $frameData->fd;
+        $data      = $frameData->data;
         $workerId  = Worker::getServer()->worker_id;
         $processId = Worker::getServer()->worker_pid;
-        Worker::push(sprintf('Controller Get Message! fd: %d, workerId: %d, processId: %d', $nowUserFd, $workerId, $processId));
+        Worker::push(sprintf('Controller Get Message! fd: %d, workerId: %d, processId: %d', $nowUserFd, $workerId, $processId), $nowUserFd);
         Worker::pushAll(static function (int $fd) use ($nowUserFd, $data) {
             if ($fd === $nowUserFd) {
                 return sprintf('You(%d) say: %s', $fd, $data);

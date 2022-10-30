@@ -9,7 +9,10 @@ use Swoole\Http\Response;
 use Swoole\WebSocket\Frame;
 use Swoole\WebSocket\Server;
 
-class OpenSwoole_Websocket_Test extends BaseConfig
+/**
+ * @internal
+ */
+final class OpenSwoole_Websocket_Test extends BaseConfig
 {
     /**
      * Swoole Http Driver.
@@ -78,9 +81,11 @@ class OpenSwoole_Websocket_Test extends BaseConfig
         $config = $this;
         $server->on('Start', static function (Server $server) use ($config) {
             fwrite(STDOUT, sprintf(
-                "Swoole http server is started at %s:%d \n",
+                'Swoole %s server is started at %s:%d %s',
+                explode('\\', $config->httpDriver)[1],
                 $config->listeningIp,
-                $config->listeningPort
+                $config->listeningPort,
+                PHP_EOL
             ));
         });
 

@@ -55,9 +55,16 @@ class App
             $GLOBALS['app'] = &$app;
             $app->initialize();
             $app->setContext('web')->setRequest($ci4Request)->run(returnResponse: true);
-
+            if ($isWebsocket) {
+                return true;
+            }
             $ci4Response = Services::response();
         } catch (Throwable $e) {
+            if ($isWebsocket) {
+                dump($e);
+
+                return false;
+            }
             $exception = new Exceptions($request);
             $response  = $exception->exceptionHandler($e);
             unset($app);

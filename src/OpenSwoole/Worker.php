@@ -26,8 +26,14 @@ class Worker
     protected static Psr17Factory $uploadedFileFactory;
     protected static ResponseMerger $responseMerger;
     protected static HttpServer|WebSocketServer $server;
-    protected static ServerRequestInterface $websocketRequest;
     protected static ?Frame $frame = null;
+
+    /**
+     * Websocket Request Pool
+     *
+     * @var array<string,\Swoole\Http\Request>
+     */
+    protected static array $websocketRequestPool = [];
 
     /**
      * Init Worker
@@ -93,8 +99,18 @@ class Worker
     public static function initializeWebsocket(Request $swooleRequest)
     {
         if (self::$server->isEstablished($swooleRequest->fd)) {
-            self::$websocketRequest = self::requestFactory($swooleRequest);
+            self::$websocketRequestPool['fd' . $swooleRequest->fd] = $swooleRequest;
         }
+    }
+
+    /**
+     * Remove connection from pool upon close
+     *
+     * @return void
+     */
+    public static function unsetWebsocket(int $fd)
+    {
+        unset(self::$websocketRequestPool['fd' . $fd]);
     }
 
     /**
@@ -105,10 +121,11 @@ class Worker
      */
     public static function websocketProcesser(Frame $frame)
     {
-        if (self::$server->isEstablished($frame->fd)) {
+        if ($websocketRequest = (self::$websocketRequestPool['fd' . $frame->fd] ?? false)) {
             self::$frame = $frame;
-            \Monken\CIBurner\App::run(self::$websocketRequest, true);
+            \Monken\CIBurner\App::run(self::requestFactory($websocketRequest), true);
             \Monken\CIBurner\App::clean();
+            self::$frame = null;
         }
     }
 

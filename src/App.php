@@ -2,6 +2,7 @@
 
 namespace Monken\CIBurner;
 
+use CodeIgniter\Config\Factories;
 use CodeIgniter\Config\Services;
 use Exception;
 use Kint\Kint;
@@ -100,6 +101,8 @@ class App
         } catch (Throwable $th) {
         }
         Services::reset(true);
+        Factories::reset();
+        unset($_SERVER['HTTP_X_FORWARDED_FOR'], $_SERVER['HTTP_X_REAL_IP'], $_SERVER['HTTP_USER_AGENT']);
         UploadedFileBridge::reset();
         if (env('CIROAD_DB_AUTOCLOSE')) {
             HandleDBConnection::closeConnect();

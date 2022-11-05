@@ -18,8 +18,7 @@ class RequestHandler
         $appConfig       = new App();
         self::$_rRequest = $rRequest;
         self::setFile();
-
-        $_SERVER['HTTP_USER_AGENT'] = self::$_rRequest->getHeaderLine('User-Agent');
+        self::setServer();
 
         Services::createRequest($appConfig, false);
         Services::request()->getUserAgent()->parse($_SERVER['HTTP_USER_AGENT']);
@@ -34,6 +33,17 @@ class RequestHandler
         Services::request()->detectLocale($appConfig);
 
         return Services::request();
+    }
+
+    protected static function setServer()
+    {
+        $_SERVER['HTTP_USER_AGENT'] = self::$_rRequest->getHeaderLine('User-Agent');
+        if (self::$_rRequest->getHeaderLine('x-forwarded-for') !== '') {
+            $_SERVER['HTTP_X_FORWARDED_FOR'] = self::$_rRequest->getHeaderLine('x-forwarded-for');
+        }
+        if (self::$_rRequest->getHeaderLine('x-real-ip') !== '') {
+            $_SERVER['HTTP_X_REAL_IP'] = self::$_rRequest->getHeaderLine('x-real-ip');
+        }
     }
 
     protected static function setFile()

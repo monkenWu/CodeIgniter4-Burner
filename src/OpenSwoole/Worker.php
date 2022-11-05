@@ -84,9 +84,7 @@ class Worker
      */
     public static function setWebsocket(Request $swooleRequest)
     {
-        if (self::$server->isEstablished($swooleRequest->fd)) {
-            self::$websocketRequestPool['fd' . $swooleRequest->fd] = $swooleRequest;
-        }
+        self::$websocketRequestPool['fd' . $swooleRequest->fd] = $swooleRequest;
     }
 
     /**
@@ -162,16 +160,12 @@ class Worker
      */
     public static function requestFactory(Request $swooleRequest): ServerRequestInterface
     {
-        if (null === $swooleRequest->files) {
-            $swooleRequest->files = [];
-        }
-
         return (new PsrRequest(
             $swooleRequest,
             self::$uriFactory,
             self::$streamFactory,
             self::$uploadedFileFactory
-        ))->withUploadedFiles($swooleRequest->files);
+        ))->withUploadedFiles($swooleRequest->files ?? []);
     }
 }
 

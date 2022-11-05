@@ -82,7 +82,7 @@ class Worker
      *
      * @return void
      */
-    public static function initializeWebsocket(Request $swooleRequest)
+    public static function setWebsocket(Request $swooleRequest)
     {
         if (self::$server->isEstablished($swooleRequest->fd)) {
             self::$websocketRequestPool['fd' . $swooleRequest->fd] = $swooleRequest;

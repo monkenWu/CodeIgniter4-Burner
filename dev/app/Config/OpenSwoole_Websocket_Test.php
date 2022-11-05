@@ -90,7 +90,7 @@ final class OpenSwoole_Websocket_Test extends BaseConfig
         });
 
         $server->on('open', static function (Server $server, Request $request) {
-            Worker::initializeWebsocket($request);
+            Worker::setWebsocket($request);
             Worker::push(
                 data: 'hi! It\'s Burner Websocket!',
                 fd: $request->fd

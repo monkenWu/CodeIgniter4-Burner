@@ -2,7 +2,6 @@
 
 namespace App\Controllers;
 
-use CodeIgniter\Config\Services;
 use Monken\CIBurner\OpenSwoole\Worker;
 
 class OpenSwooleWebsocket extends BaseController
@@ -14,7 +13,7 @@ class OpenSwooleWebsocket extends BaseController
 
     public function socket()
     {
-        $frameData = Services::request()->getJson();
+        $frameData = Worker::getFrame();
         $nowUserFd = $frameData->fd;
         $data      = $frameData->data;
         $workerId  = Worker::getServer()->worker_id;

@@ -10,5 +10,6 @@ class EntryPoint
         $workerPath = $nowDir . DIRECTORY_SEPARATOR . 'Worker.php';
         $start      = popen("php {$workerPath}", 'w');
         pclose($start);
+        echo PHP_EOL;
     }
 }

@@ -6,9 +6,13 @@ use CodeIgniter\Config\BaseConfig;
 use Monken\CIBurner\OpenSwoole\Worker;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
-use Swoole\Http\Server;
+use Swoole\WebSocket\Frame;
+use Swoole\WebSocket\Server;
 
-class OpenSwoole extends BaseConfig
+/**
+ * @internal
+ */
+final class OpenSwoole_Websocket_Test extends BaseConfig
 {
     /**
      * Swoole Http Driver.
@@ -61,10 +65,10 @@ class OpenSwoole extends BaseConfig
     public $config = [
         'worker_num'            => 1,
         'max_request'           => 0,
-        'document_root'         => '{{static_path}}',
+        'document_root'         => '/app/dev/public',
         'enable_static_handler' => true,
         'log_level'             => 0,
-        'log_file'              => '{{log_path}}',
+        'log_file'              => '/app/dev/writable/logs/OpenSwoole.log',
     ];
 
     /**
@@ -85,9 +89,29 @@ class OpenSwoole extends BaseConfig
             ));
         });
 
+        $server->on('open', static function (Server $server, Request $request) {
+            Worker::setWebsocket($request);
+            Worker::push(
+                data: 'hi! It\'s Burner Websocket!',
+                fd: $request->fd
+            );
+        });
+
+        $server->on('message', static function (Server $server, Frame $frame) {
+            // Burner handles CodeIgniter4 entry points.
+            Worker::websocketProcesser($frame);
+        });
+
         $server->on('request', static function (Request $swooleRequest, Response $swooleResponse) {
             // Burner handles CodeIgniter4 entry points.
             Worker::httpProcesser($swooleRequest, $swooleResponse);
+        });
+
+        $server->on('close', static function (Server $server, int $fd) {
+            fwrite(STDOUT, sprintf(
+                "client-%d is closed\n",
+                $fd,
+            ));
         });
     }
 }

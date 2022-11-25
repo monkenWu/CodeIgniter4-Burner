@@ -83,4 +83,14 @@ final class BasicTest extends BaseController
 
         return $this->respond(['status' => true]);
     }
+
+    /**
+     * i18n test
+     *
+     * @return void
+     */
+    public function i18n()
+    {
+        echo lang('Burner.negotiate');
+    }
 }

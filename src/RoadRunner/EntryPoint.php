@@ -30,5 +30,6 @@ class EntryPoint
         $configFile = $config->serverConfigPath;
         $start      = popen("{$rrPath} serve -w {$workDir} -c {$configFile}", 'w');
         pclose($start);
+        echo PHP_EOL;
     }
 }

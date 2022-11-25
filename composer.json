@@ -22,7 +22,7 @@
     "prefer-stable": true,
     "require": {
         "php": "^8.0 || ^8.1 || ^8.2",
-        "codeigniter4/framework": "^4.2.0",
+        "codeigniter4/framework": "^4.2.10",
         "spiral/roadrunner": "^2",
         "workerman/workerman": "^4.1",
         "symfony/var-dumper": "^6",

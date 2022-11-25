@@ -2,6 +2,7 @@
 
 namespace Monken\CIBurner;
 
+use CodeIgniter\Config\Factories;
 use CodeIgniter\Config\Services;
 use Exception;
 use Kint\Kint;
@@ -21,7 +22,7 @@ class App
     /**
      * run ci4 app
      */
-    public static function run(ServerRequestInterface $request): ResponseInterface
+    public static function run(ServerRequestInterface $request, bool $isWebsocket = false): ResponseInterface|bool
     {
         // handle request object
         try {
@@ -51,14 +52,20 @@ class App
             if (! env('CIROAD_DB_AUTOCLOSE')) {
                 HandleDBConnection::reconnect();
             }
-
             $app            = \Config\Services::codeigniter();
             $GLOBALS['app'] = &$app;
             $app->initialize();
             $app->setContext('web')->setRequest($ci4Request)->run(returnResponse: true);
-
+            if ($isWebsocket) {
+                return true;
+            }
             $ci4Response = Services::response();
         } catch (Throwable $e) {
+            if ($isWebsocket) {
+                dump($e);
+
+                return false;
+            }
             $exception = new Exceptions($request);
             $response  = $exception->exceptionHandler($e);
             unset($app);
@@ -94,6 +101,8 @@ class App
         } catch (Throwable $th) {
         }
         Services::reset(true);
+        Factories::reset();
+        unset($_SERVER['HTTP_X_FORWARDED_FOR'], $_SERVER['HTTP_X_REAL_IP'], $_SERVER['HTTP_USER_AGENT']);
         UploadedFileBridge::reset();
         if (env('CIROAD_DB_AUTOCLOSE')) {
             HandleDBConnection::closeConnect();

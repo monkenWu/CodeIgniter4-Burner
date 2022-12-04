@@ -105,9 +105,10 @@ class Exceptions
                 $msg = $this->collectVars($exception, $statusCode);
                 if (ENVIRONMENT === 'development' && SHOW_DEBUG_BACKTRACE) {
                     $this->response->setBody(json_encode($msg));
+                }else{
+                    $this->response->setBody('');
                 }
                 $this->response->setStatusCode($statusCode);
-
                 return new ResponseBridge($this->response, $this->rRequest);
             }
         }

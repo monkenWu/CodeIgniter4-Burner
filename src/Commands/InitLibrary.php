@@ -30,21 +30,58 @@ class InitLibrary extends BaseCommand
                     'red'
                 )
             );
+            return;
+        }
 
+        $driverIntegrationClassName = sprintf('Monken\CIBurner\%s\Integration', $driver);
+        if(class_exists($driverIntegrationClassName) == false) {
+            CLI::write(
+                CLI::color(
+                    sprintf(
+                        'The "%s" Driver is not yet installed, you can install it with the following command:',
+                        $driver
+                    ),
+                    'red'
+                )
+            );
+            CLI::write();
+            CLI::write(
+                CLI::color(
+                    sprintf(
+                        'composer require monken/codeigniter4-burner-%s',
+                        ucwords($driver)
+                    ),
+                    'white',
+                    'blue'
+                )
+            );
+            CLI::write();
             return;
         }
 
         // init choose driver
-        $this->{"init{$driver}"}();
+        /**
+         * @var \Monken\CIBurner\IntegrationInterface
+         */
+        $integration = new $driverIntegrationClassName();
+        $integration->initServer();
 
         CLI::write(
-            CLI::color("Burner initialization successful!\n", 'green') .
-            sprintf(
-                'Now you can use "%s" to run your CodeIgniter4 with %s Server!',
-                CLI::color('burner:start', 'yellow'),
-                $driver
-            ),
+            CLI::color("Burner initialization successful!\n", 'green') . 
+            'Now you can run burner with the follwing command:',
         );
+        CLI::write();
+        CLI::write(
+            CLI::color(
+                sprintf(
+                    'burner:start %s',
+                    $driver
+                ),
+                'white',
+                'blue'
+            )
+        );
+        CLI::write();
     }
 
     protected function initRoadRunner()
@@ -107,19 +144,4 @@ class InitLibrary extends BaseCommand
         file_put_contents($configPath . 'Workerman.php', $cnf);
     }
 
-    protected function initOpenSwoole()
-    {
-        CLI::write(
-            CLI::color("\nCopy configuration files ......\n", 'blue')
-        );
-        $configPath = ROOTPATH . 'app/Config' . DIRECTORY_SEPARATOR;
-        copy(
-            __DIR__ . DIRECTORY_SEPARATOR . 'Files' . DIRECTORY_SEPARATOR . 'Burner-OpenSwoole.php',
-            $configPath . 'Burner.php'
-        );
-        $cnf = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'Files' . DIRECTORY_SEPARATOR . 'OpenSwoole.php');
-        $cnf = str_replace('{{static_path}}', ROOTPATH . 'public', $cnf);
-        $cnf = str_replace('{{log_path}}', realpath(WRITEPATH . 'logs') . DIRECTORY_SEPARATOR . 'OpenSwoole.log', $cnf);
-        file_put_contents($configPath . 'OpenSwoole.php', $cnf);
-    }
 }

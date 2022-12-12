@@ -61,10 +61,10 @@ class OpenSwoole extends BaseConfig
     public $config = [
         'worker_num'            => 1,
         'max_request'           => 0,
-        'document_root'         => '{{static_path}}',
+        'document_root'         => '/app/CodeIgniter4-Burner/dev/public',
         'enable_static_handler' => true,
         'log_level'             => 0,
-        'log_file'              => '{{log_path}}',
+        'log_file'              => '/app/CodeIgniter4-Burner/dev/writable/logs/OpenSwoole.log',
     ];
 
     /**

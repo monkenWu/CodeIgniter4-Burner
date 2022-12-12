@@ -44,6 +44,7 @@ class Autoload extends AutoloadConfig
         APP_NAMESPACE        => APPPATH, // For custom app namespace
         'Config'             => APPPATH . 'Config',
         'Monken\\CIBurner\\' => ROOTPATH . '..' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR,
+        'Monken\\CIBurner\\OpenSwoole' => ROOTPATH . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'OpenSwoole' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR,
     ];
 
     /**

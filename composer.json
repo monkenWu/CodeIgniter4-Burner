@@ -23,12 +23,9 @@
     "require": {
         "php": "^8.0 || ^8.1 || ^8.2",
         "codeigniter4/framework": "^4.2.10",
-        "spiral/roadrunner": "^2",
-        "workerman/workerman": "^4.1",
         "symfony/var-dumper": "^6",
         "laminas/laminas-diactoros": "^2.8",
-        "nyholm/psr7": "^1.5",
-        "imefisto/psr-swoole-native": "^1.1"
+        "nyholm/psr7": "^1.5"
     },
     "autoload": {
 		"psr-4": {
@@ -37,8 +34,7 @@
 	},
     "require-dev": {
         "codeigniter/coding-standard": "^1.4",
-        "rector/rector": "0.12.16",
-        "openswoole/ide-helper": "@dev"
+        "rector/rector": "0.12.16"
     },
     "config": {
         "allow-plugins": {

@@ -88,6 +88,11 @@ class ServerStart extends BaseCommand
         }else{
             $loaderPath = realpath(__DIR__ . '/../FrontLoader.php');
         }
-        $integration->startServer($loaderPath);
+        $argv = $_SERVER['argv'];
+        $commands = '';
+        if(count($argv) > 3){
+            $commands = implode(' ', array_slice($argv, 3));
+        }
+        $integration->startServer($loaderPath, $commands);
     }
 }

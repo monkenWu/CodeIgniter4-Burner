@@ -69,7 +69,25 @@ class ServerStart extends BaseCommand
          * @var \Monken\CIBurner\IntegrationInterface
          */
         $integration = new $driverIntegrationClassName();
-        $loaderPath = realpath(__DIR__ . '/../FrontLoader.php');
+        if($driver == 'RoadRunner'){
+            $workDir = __DIR__ . DIRECTORY_SEPARATOR;
+            if (file_exists($workDir . '../../../../autoload.php')) {
+                $loaderPath = realpath($workDir . '../../../../bin/rr_server');
+            } elseif (file_exists('../../dev/vendor/autoload.php')) {
+                $loaderPath = realpath('../../dev/vendor/bin/rr_server');
+            }
+            if ($loaderPath === false) {
+                CLI::write(
+                    CLI::color(
+                        "Error! Roadrunner Server is not init. Please use 'burner:init RoadRunner' to init Roadrunner.",
+                        'red'
+                    )
+                );
+                return;
+            }
+        }else{
+            $loaderPath = realpath(__DIR__ . '/../FrontLoader.php');
+        }
         $integration->startServer($loaderPath);
     }
 }

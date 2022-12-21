@@ -10,14 +10,16 @@ class InitLibrary extends BaseCommand
     protected $group       = 'burner';
     protected $name        = 'burner:init';
     protected $description = 'Initialize Burner required files.';
-    protected $usage       = 'burner:init [use_driver]';
+    protected $usage       = 'burner:init [use_driver] [config_type]';
     protected $arguments   = [
         'use_driver' => 'You can choose Workerman, RoadRunner and OpenSwoole.',
+        'config_type' => 'You can choose basic or any other config type provided by the driver.',
     ];
 
     public function run(array $params)
     {
         $driver      = $params[0] ?? 'none';
+        $configType      = $params[1] ?? 'basic';
         $allowDriver = ['RoadRunner', 'Workerman', 'OpenSwoole'];
         if (in_array($driver, $allowDriver, true) === false) {
             CLI::write(
@@ -64,7 +66,8 @@ class InitLibrary extends BaseCommand
          * @var \Monken\CIBurner\IntegrationInterface
          */
         $integration = new $driverIntegrationClassName();
-        $integration->initServer();
+        $loaderPath = realpath(__DIR__ . '/../FrontLoader.php');
+        $integration->initServer($configType, $loaderPath);
 
         CLI::write(
             CLI::color("Burner initialization successful!\n", 'green') . 
@@ -82,48 +85,6 @@ class InitLibrary extends BaseCommand
             )
         );
         CLI::write();
-    }
-
-    protected function initRoadRunner()
-    {
-        CLI::write(
-            CLI::color("\nCopy configuration files ......\n", 'blue')
-        );
-        copy(
-            __DIR__ . DIRECTORY_SEPARATOR . 'Files' . DIRECTORY_SEPARATOR . 'Burner-RoadRunner.php',
-            ROOTPATH . 'app/Config' . DIRECTORY_SEPARATOR . 'Burner.php'
-        );
-        $rr = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'Files' . DIRECTORY_SEPARATOR . '.rr.yaml');
-        $rr = str_replace('{{static_paths}}', ROOTPATH . 'public', $rr);
-        $rr = str_replace('{{reload_paths}}', realpath(APPPATH . '../'), $rr);
-        file_put_contents(ROOTPATH . '.rr.yaml', $rr);
-
-        CLI::write(
-            CLI::color("Initializing RoadRunner Server binary ......\n", 'blue')
-        );
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            $command = '&&vendor\\bin\\rr get';
-        } else {
-            $command = ';./vendor/bin/rr get';
-        }
-
-        $init = popen('cd ' . ROOTPATH . $command, 'w');
-        pclose($init);
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            $targetPath = ROOTPATH . 'vendor\\bin\\rr_server.exe';
-            $nowRRPath  = ROOTPATH . 'rr.exe';
-        } else {
-            $targetPath = ROOTPATH . 'vendor/bin/rr_server';
-            $nowRRPath  = ROOTPATH . 'rr';
-        }
-        CLI::write(
-            'Moveing RoadRunner Server binary to: ' .
-            CLI::color("{$targetPath}", 'green') .
-            "\n"
-        );
-
-        rename($nowRRPath, $targetPath);
-        @chmod($targetPath, 0777 & ~umask());
     }
 
     protected function initWorkerman()

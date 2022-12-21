@@ -4,6 +4,6 @@ namespace Monken\CIBurner;
 
 Interface IntegrationInterface
 {
-    public function initServer();
+    public function initServer(string $configType = 'basic', string $frontLoader = '');
     public function startServer(string $frontLoader);
 }

@@ -8,13 +8,6 @@ Burner 是一款專屬於 CodeIgniter4 的開箱即用的程式庫，它支援 [
 1. CodeIgniter Framework 4.2.0 以上
 2. Composer
 3. PHP8^
-4. 安裝並開啟 `php-curl` 擴充套件
-5. 安裝並開啟 `php-zip` 擴充套件
-6. 安裝並開啟 `php-sockets` 擴充套件
-7. 安裝並開啟 `php-pcntl` 擴充套件
-8. 安裝並開啟 `php-posix` 擴充套件
-9. 如果你使用 `Workerman` 作為驅動。我們推薦你安裝並開啟 [php-event](https://www.php.net/manual/en/book.event.php) 擴充套件
-10. 如果你使用 `OpenSwoole` 作為驅動。請參閱官方說明書： [How to Install Open Swoole](https://openswoole.com/docs/get-started/installation)
 
 ### Composer 安裝
 
@@ -24,7 +17,28 @@ Burner 是一款專屬於 CodeIgniter4 的開箱即用的程式庫，它支援 [
 composer require monken/codeigniter4-burner
 ```
 
-使用程式庫提供的內建指令初始化伺服器與其所需的檔案。
+你可以依據你的喜好安裝對應的伺服器驅動。
+
+每個驅動程式都有相應的開發規則，以及一些專屬的伺服器指令，你可以在它們的 Git 儲存庫 README 檔案中閱讀它們。
+
+* [OpenSwoole 驅動](https://github.com/monkenWu/CodeIgniter4-Burner-OpenSwoole)
+
+  ```
+  composer require monken/codeigniter4-burner-OpenSwoole
+  ```
+* [RoadRunner 驅動](https://github.com/monkenWu/CodeIgniter4-Burner-RoadRunner)
+
+  ```
+  composer require monken/codeigniter4-burner-RoadRunner
+  ```
+
+* [Workerman 驅動](https://github.com/monkenWu/CodeIgniter4-Burner-Workerman)
+
+  ```
+  composer require monken/codeigniter4-burner-Workerman
+  ```
+
+安裝好驅動後，使用程式庫提供的內建指令初始化伺服器與其所需的檔案。
 
 ```
 php spark burner:init [RoadRunner, Workerman, OpenSwoole]
@@ -35,145 +49,9 @@ php spark burner:init [RoadRunner, Workerman, OpenSwoole]
 在專案根目錄中使用指令執行伺服器：
 
 ```
-php spark burner:start
+php spark burner:start [RoadRunner, Workerman, OpenSwoole]
 ```
-
-## RoadRunner 伺服器組態設定
-
-伺服器組態設定應置於專案根目錄下，並命名為 `.rr.yaml` 。程式庫初始化後產出的預設檔案看起來會像這樣子：
-
-```yaml
-version: "2.7"
-
-rpc:
-  listen: tcp://127.0.0.1:6001
-
-server:
-  command: "php Worker.php"
-  # env:
-  #   XDEBUG_SESSION: 1
-
-http:
-  address: "0.0.0.0:8080"
-  static:
-    dir: "/app/dev/public"
-    forbid: [".htaccess", ".php"]
-  pool:
-    num_workers: 1
-    # max_jobs: 64
-    # debug: true
-
-# reload:
-#   interval: 1s
-#   patterns: [ ".php" ]
-#   services:
-#     http:
-#       recursive: true
-#       ignore: [ "vendor" ]
-#       patterns: [ ".php", ".go", ".dmd" ]
-#       dirs: [ "/app/dev" ]
-```
-
-當然，你可以參考 [Roadrunner 手冊](https://roadrunner.dev/docs/intro-config) 建立符合專案需求的組態設定檔。
-
-## Workerman 伺服器組態設定
-
-伺服器組態設定應置於 `app/Config` 目錄下，並命名為 `Workerman.php` 。程式庫初始化後產出的預設檔案看起來會像這樣子：
-
-```php
-class Workerman extends BaseConfig
-{
-    /**
-     * Public static files location path.
-     *
-     * @var string
-     */
-    public $staticDir = '/app/dev/public';
-
-    /**
-     * Public access to files with these filename-extension is prohibited.
-     *
-     * @var array
-     */
-    public $staticForbid = ['htaccess', 'php'];
-
-    /** hide **/
-}
-```
-
-當然，你可以參考 [Workerman 手冊](https://www.workerman.net/doc/workerman/worker/count.html) 建立符合專案需求的組態設定檔。
-
-## OpenSwoole 伺服器組態設定
-
-伺服器組態設定應置於 `app/Config` 目錄下，並命名為 `OpenSwoole.php` 。程式庫初始化後產出的預設檔案看起來會像這樣子：
-
-```php
-class OpenSwoole extends BaseConfig
-{
-    /**
-     * TCP HTTP service listening ip
-     *
-     * @var string
-     */
-    public $listeningIp = '0.0.0.0';
-
-    /**
-     * TCP HTTP service listening port
-     *
-     * @var int
-     */
-    public $listeningPort = 8080;
-
-    /**
-     * SWOOLE_PROCESS or SWOOLE_BASE
-     *
-     * @var int
-     *
-     * @see https://openswoole.com/docs/modules/swoole-server-reload#server-modes-and-reloading
-     */
-    public $mode = SWOOLE_BASE;
-
-    //hide
-}
-```
-
-當然，你可以參考 [OpenSwoole HTTP 伺服器設定](https://openswoole.com/docs/modules/swoole-http-server/configuration), [OpenSwoole TCP 伺服器設定](https://openswoole.com/docs/modules/swoole-server/configuration) 等說明書，建立符合專案需求的組態設定檔。
-
 ## 開發建議
-
-### 自動重新載入
-
-RoadRunner 與 Workerman 在預設的情況下，必須在每次修改 php 檔案後重啟伺服器，你所做的修改才會生效，這在開發上似乎不那麼友善。
-
-#### RoadRunner
-
-你可以修改你的 `.rr.yaml` 組態設定檔案，加入以下設定後以 `-d` 開發模式啟動 RoadRunner Server，它將會自動偵測 PHP 檔案是否修改，並即時重新載入 Worker 。
-
-```yaml
-reload:
-  interval: 1s
-  patterns: [ ".php" ]
-  services:
-    http:
-      recursive: true
-      ignore: [ "vendor" ]
-      patterns: [ ".php", ".go", ".md" ]
-      dirs: [ "." ]
-```
-
-#### Workerman 
-
-你可以修改你的 `app/Config/Workerman.php` 組態設定檔案，加入以下設定後重起伺服器。
-
-```php
-public $autoReload = true;
-```
-
-> 注意 `reload` 是非常耗費資源的，請不要在正式環境中打開這個選項。
-
-#### OpenSwoole
-
-> 目前 Burner 尚未支援 OpenSwoole 驅動的自動載入。
 
 ### 使用 Codeigniter4 Request 與 Response 物件
 
@@ -221,31 +99,7 @@ class Home extends BaseController
 
 ### 在只有一個 Worker 的環境中開發與除錯
 
-因為 RoadRunner 與 Workerman 與其他伺服器軟體（Nginx、Apache）有著根本上的不同，每個 Codeigniter4 將會以 Worker 的形式持久化於記憶體中，HTTP 的請求會重複利用到這些 Worker 進行處裡。所以，我們最好在只有單個 Worker 的情況下開發軟體並測試是否穩定，以證明在多個 Woker 的實際環境中能正常運作。 
-
-#### RoadRunner
-
-你可以參考以下 `.rr.yaml` 設定將 Worker 的數量降到最低：
-
-```yaml
-http:
-  address: "0.0.0.0:8080"
-  static:
-    dir: "./public"
-    forbid: [".htaccess", ".php"]
-  pool:
-    num_workers: 1
-    # max_jobs: 64
-    # debug: true
-```
-
-#### Workerman
-
-你可以參考以下 `app/Config/Workerman.php` 設定將 Worker 的數量降到最低：
-
-```php
-public $workerCount = 1;
-```
+因為 RoadRunner、OpenSwoole 與 Workerman 與其他伺服器軟體（Nginx、Apache）有著根本上的不同，每個 Codeigniter4 將會以 Worker 的形式持久化於記憶體中，HTTP 的請求會重複利用到這些 Worker 進行處裡。所以，我們最好在只有單個 Worker 的情況下開發軟體並測試是否穩定，以證明在多個 Woker 的實際環境中能正常運作。 
 
 ### 資料庫連線
 

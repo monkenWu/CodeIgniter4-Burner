@@ -10,22 +10,37 @@ Burner is an out-of-the-box library for CodeIgniter4 that supports [RoadRunner](
 1. CodeIgniter Framework 4.2.0^
 2. Composer
 3. PHP8^
-4. Enable `php-curl` extension
-5. Enable `php-zip` extension
-6. Enable `php-sockets` extension
-7. Enable `php-pcntl` extension
-8. Enable `php-posix` extension
-9. If you use `Workerman` driver. We recommend you to install [php-event](https://www.php.net/manual/en/book.event.php) extension
-10. If you use `OpenSwoole` driver. Please read [How to Install Open Swoole](https://openswoole.com/docs/get-started/installation)
 
 ### Composer Install
+
 Use "Composer" to download the library and its dependencies to the project
 
 ```
 composer require monken/codeigniter4-burner
 ```
 
-Initialize Server files using built-in commands in the library
+You can install the appropriate Driver according to your preference.
+
+Each Driver has its own development rules to be aware of, as well as some proprietary server commands, which you can find in their Git repository README files.
+
+* [OpenSwoole Driver](https://github.com/monkenWu/CodeIgniter4-Burner-OpenSwoole)
+
+  ```
+  composer require monken/codeigniter4-burner-OpenSwoole
+  ```
+* [RoadRunner Driver](https://github.com/monkenWu/CodeIgniter4-Burner-RoadRunner)
+
+  ```
+  composer require monken/codeigniter4-burner-RoadRunner
+  ```
+
+* [Workerman Driver](https://github.com/monkenWu/CodeIgniter4-Burner-Workerman)
+
+  ```
+  composer require monken/codeigniter4-burner-Workerman
+  ```
+
+After installing the driver, initialize the server files using the built-in commands in the library
 
 ```
 php spark burner:init [RoadRunner, Workerman, OpenSwoole]
@@ -35,147 +50,9 @@ php spark burner:init [RoadRunner, Workerman, OpenSwoole]
 Run the command in the root directory of your project:
 
 ```
-php spark burner:start
+php spark burner:start [RoadRunner, Workerman, OpenSwoole]
 ```
-
-## RoadRunner Server Settings
-
-The server settings are all in the project root directory ".rr.yaml". The default file will look like this:
-
-```yaml
-version: "2.7"
-
-rpc:
-  listen: tcp://127.0.0.1:6001
-
-server:
-  command: "php Worker.php"
-  # env:
-  #   XDEBUG_SESSION: 1
-
-http:
-  address: "0.0.0.0:8080"
-  static:
-    dir: "/app/dev/public"
-    forbid: [".htaccess", ".php"]
-  pool:
-    num_workers: 1
-    # max_jobs: 64
-    # debug: true
-
-# reload:
-#   interval: 1s
-#   patterns: [ ".php" ]
-#   services:
-#     http:
-#       recursive: true
-#       ignore: [ "vendor" ]
-#       patterns: [ ".php", ".go", ".dmd" ]
-#       dirs: [ "/app/dev" ]
-```
-
-You can create your configuration file according to the [Roadrunner document](https://roadrunner.dev/docs/intro-config).
-
-## Workerman Server Settings
-
-The server settings are all in the `app/Config` directory `Workerman.php`. The default file will look like this:
-
-```php
-class Workerman extends BaseConfig
-{
-    /**
-     * Public static files location path.
-     *
-     * @var string
-     */
-    public $staticDir = '/app/dev/public';
-
-    /**
-     * Public access to files with these filename-extension is prohibited.
-     *
-     * @var array
-     */
-    public $staticForbid = ['htaccess', 'php'];
-
-    /** hide **/
-}
-```
-
-You can create your configuration file according to the [Workerman document](https://www.workerman.net/doc/workerman/worker/count.html).
-
-## OpenSwoole Server Settings
-
-The server settings are all in the `app/Config` directory `OpenSwoole.php`. The default file will look like this:
-
-```php
-class OpenSwoole extends BaseConfig
-{
-    /**
-     * TCP HTTP service listening ip
-     *
-     * @var string
-     */
-    public $listeningIp = '0.0.0.0';
-
-    /**
-     * TCP HTTP service listening port
-     *
-     * @var int
-     */
-    public $listeningPort = 8080;
-
-    /**
-     * SWOOLE_PROCESS or SWOOLE_BASE
-     *
-     * @var int
-     *
-     * @see https://openswoole.com/docs/modules/swoole-server-reload#server-modes-and-reloading
-     */
-    public $mode = SWOOLE_BASE;
-
-    //hide
-}
-```
-
-You can refer to the [OpenSwoole HTTP Server Settings](https://openswoole.com/docs/modules/swoole-http-server/configuration), [OpenSwoole TCP Server Settings](https://openswoole.com/docs/modules/swoole-server/configuration), etc. to crete a configuration profile that meets your project requirements.
-
 ## Development Suggestions
-
-### Automatic reload
-
-In the default circumstance of RoadRunner and Workerman, you must restart the server everytime after you revised any PHP files so that your revision will effective.
-It seems not that friendly during development.
-
-#### RoadRunner
-
-You can revise your `.rr.yaml` configuration file, add the settings below and start the development mode with `-d`.
-RoadRunner Server will detect if the PHP files were revised or not, automatically, and reload the Worker instantly.
-
-```yaml
-reload:
-  interval: 1s
-  patterns: [ ".php" ]
-  services:
-    http:
-      recursive: true
-      ignore: [ "vendor" ]
-      patterns: [ ".php", ".go", ".md" ]
-      dirs: [ "." ]
-```
-
-#### Workerman 
-
-You can modify your `app/Config/Workerman.php` configuration file, add the following settings and restart the server.
-
-```php
-public $autoReload = true;
-```
-
-> The `reload` function is very resource-intensive, please do not activate the option in the formal environment.
-
-#### OpenSwoole
-
-> Burner does not currently support automatic loading of OpenSwoole drivers.
 
 ### Using Codeigniter4 Request and Response object
 
@@ -187,7 +64,7 @@ Please be noticed, while constructing response for the users during developing, 
 
 ### Use return to stop controller logic
 
-Inside the Controller, try using return to stop the controller logic. No matter the response of view or API, reduce the `echo` output usage can avoid lets of errors, just like ths:
+Inside the Controller, try using return to stop the controller logic. No matter the response of view or API, reduce the `echo` output usage can avoid lets of errors, just like ths:W
 
 ```php
 <?php namespace App\Controllers;
@@ -223,31 +100,7 @@ We only focus on supporting the Codeigniter4 built-in [Session library](https://
 
 ### Developing and debugging in a environment with only one Worker
 
-Since the RoadRunner and Workerman has fundamentally difference with other server software(i.e. Nginx, Apache), every Codeigniter4 will persist inside RAMs as the form of Worker, HTTP requests will reuse these Workers to process. Hence, we have better develop and test stability under the circumstance with only one Worker to prove it can also work properly under serveral Workers in the formal environment.
-
-#### RoadRunner
-
-You can reference the `.rr.yaml` settings below to lower the amount of Worker to the minimum:
-
-```yaml
-http:
-  address: "0.0.0.0:8080"
-  static:
-    dir: "./public"
-    forbid: [".htaccess", ".php"]
-  pool:
-    num_workers: 1
-    # max_jobs: 64
-    # debug: true
-```
-
-#### Workerman
-
-You can reference the `app/Config/Workerman.php` settings below to lower the amount of Worker to the minimum:
-
-```php
-public $workerCount = 1;
-```
+Since the RoadRunner, OpenSwoole and Workerman has fundamentally difference with other server software(i.e. Nginx, Apache), every Codeigniter4 will persist inside RAMs as the form of Worker, HTTP requests will reuse these Workers to process. Hence, we have better develop and test stability under the circumstance with only one Worker to prove it can also work properly under serveral Workers in the formal environment.
 
 ### Database Connection
 

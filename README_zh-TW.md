@@ -24,18 +24,18 @@ composer require monken/codeigniter4-burner
 * [OpenSwoole 驅動](https://github.com/monkenWu/CodeIgniter4-Burner-OpenSwoole)
 
   ```
-  composer require monken/codeigniter4-burner-OpenSwoole
+  composer require monken/codeigniter4-burner-openswoole
   ```
 * [RoadRunner 驅動](https://github.com/monkenWu/CodeIgniter4-Burner-RoadRunner)
 
   ```
-  composer require monken/codeigniter4-burner-RoadRunner
+  composer require monken/codeigniter4-burner-roadrunner
   ```
 
 * [Workerman 驅動](https://github.com/monkenWu/CodeIgniter4-Burner-Workerman)
 
   ```
-  composer require monken/codeigniter4-burner-Workerman
+  composer require monken/codeigniter4-burner-workerman
   ```
 
 安裝好驅動後，使用程式庫提供的內建指令初始化伺服器與其所需的檔案。

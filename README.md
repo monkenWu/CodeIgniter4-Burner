@@ -26,18 +26,18 @@ Each Driver has its own development rules to be aware of, as well as some propri
 * [OpenSwoole Driver](https://github.com/monkenWu/CodeIgniter4-Burner-OpenSwoole)
 
   ```
-  composer require monken/codeigniter4-burner-OpenSwoole
+  composer require monken/codeigniter4-burner-openswoole
   ```
 * [RoadRunner Driver](https://github.com/monkenWu/CodeIgniter4-Burner-RoadRunner)
 
   ```
-  composer require monken/codeigniter4-burner-RoadRunner
+  composer require monken/codeigniter4-burner-roadrunner
   ```
 
 * [Workerman Driver](https://github.com/monkenWu/CodeIgniter4-Burner-Workerman)
 
   ```
-  composer require monken/codeigniter4-burner-Workerman
+  composer require monken/codeigniter4-burner-workerman
   ```
 
 After installing the driver, initialize the server files using the built-in commands in the library

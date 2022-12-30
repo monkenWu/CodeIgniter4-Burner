@@ -9,6 +9,8 @@ use CodeIgniter\Cache\Handlers\PredisHandler;
 use CodeIgniter\Cache\Handlers\RedisHandler;
 use CodeIgniter\Cache\Handlers\WincacheHandler;
 use CodeIgniter\Config\BaseConfig;
+use Monken\CIBurner\OpenSwoole\Cache\OpenSwooleHandler;
+use Monken\CIBurner\BurnerCacheHandler;
 
 class Cache extends BaseConfig
 {
@@ -22,7 +24,7 @@ class Cache extends BaseConfig
      *
      * @var string
      */
-    public $handler = 'file';
+    public $handler = 'burner';
 
     /**
      * --------------------------------------------------------------------------
@@ -177,5 +179,7 @@ class Cache extends BaseConfig
         'predis'    => PredisHandler::class,
         'redis'     => RedisHandler::class,
         'wincache'  => WincacheHandler::class,
+        'openswoole' => OpenSwooleHandler::class,
+        'burner' => BurnerCacheHandler::class
     ];
 }

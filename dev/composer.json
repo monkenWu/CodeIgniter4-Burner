@@ -13,7 +13,8 @@
         "symfony/var-dumper": "^6",
         "spiral/roadrunner": "^2",
         "imefisto/psr-swoole-native": "^1.1",
-        "openswoole/ide-helper": "^4.11"
+        "openswoole/ide-helper": "^22",
+        "openswoole/core": "^22.1"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9",

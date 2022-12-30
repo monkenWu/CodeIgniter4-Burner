@@ -343,8 +343,11 @@ class App extends BaseConfig
      *
      * @var string|string[]
      */
-    public $proxyIPs = ['::1', '172.22.0.1'];
-
+    public $proxyIPs = [
+        '::1'     => 'X-Forwarded-For',
+        '172.21.0.1' => 'X-Forwarded-For',
+    ];
+    
     /**
      * --------------------------------------------------------------------------
      * CSRF Token Name

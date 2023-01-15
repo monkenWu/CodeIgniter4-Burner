@@ -103,7 +103,7 @@ class BurnerCacheHandler extends BaseHandler
     public function decrement(string $key, int $offset = 1)
     {
         if(is_null($this->burnerDriverHandler)) return null;
-        return $this->burnerDriverHandler->increment($key, $offset);
+        return $this->burnerDriverHandler->decrement($key, $offset);
     }
 
     /**

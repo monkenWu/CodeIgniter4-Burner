@@ -22,7 +22,7 @@
     "prefer-stable": true,
     "require": {
         "php": "^8.0 || ^8.1 || ^8.2",
-        "codeigniter4/framework": "^4.2.10",
+        "codeigniter4/framework": "^4.3.*",
         "symfony/var-dumper": "^6",
         "laminas/laminas-diactoros": "^2.8",
         "nyholm/psr7": "^1.5"

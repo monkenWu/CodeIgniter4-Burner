@@ -22,7 +22,7 @@ class Cache extends BaseConfig
      *
      * @var string
      */
-    public $handler = 'file';
+    public $handler = 'burner';
 
     /**
      * --------------------------------------------------------------------------
@@ -177,5 +177,7 @@ class Cache extends BaseConfig
         'predis'    => PredisHandler::class,
         'redis'     => RedisHandler::class,
         'wincache'  => WincacheHandler::class,
+        'openswoole' => OpenSwooleHandler::class,
+        'burner' => \Monken\CIBurner\BurnerCacheHandler::class
     ];
 }

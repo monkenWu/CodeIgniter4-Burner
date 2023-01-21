@@ -30,13 +30,6 @@ class BurnerCacheHandler extends BaseHandler
     public function __construct(Cache $config)
     {
         $this->cacheConfig = $config;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function initialize()
-    {
         if(is_cli() && ENVIRONMENT !== 'testing') return;
 
         $burnerDriver = BURNER_DRIVER ?? null;
@@ -53,8 +46,17 @@ class BurnerCacheHandler extends BaseHandler
             ));
         }
 
+        $this->burnerDriverHandler = new $handlerClassName($this->cacheConfig);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function initialize()
+    {
+        if(is_cli() && ENVIRONMENT !== 'testing') return;
+
         try {
-            $this->burnerDriverHandler = new $handlerClassName($this->cacheConfig);
             $this->burnerDriverHandler->initialize();
         } catch (Exception $e) {
             throw new CriticalError($e->getMessage());

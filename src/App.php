@@ -68,6 +68,7 @@ class App
             if ($isWebsocket) {
                 return false;
             }
+
             return $response;
         }
 

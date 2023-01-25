@@ -10,17 +10,20 @@ use Monken\CIBurner\BurnerCacheHandler;
 use Monken\CIBurner\OpenSwoole\Cache\SwooleTable;
 use OpenSwoole\Coroutine as Co;
 
+/**
+ * @internal
+ */
 final class OpenSwooleCacheTest extends CIUnitTestCase
 {
     /**
      * @var \Monken\CIBurner\BurnerCacheHandler
      */
     protected $handler;
+
     protected static $key1  = 'key1';
     protected static $key2  = 'key2';
     protected static $key3  = 'key3';
     protected static $dummy = 'dymmy';
-
     private Cache $config;
 
     private static function getKeyArray()
@@ -36,16 +39,16 @@ final class OpenSwooleCacheTest extends CIUnitTestCase
     {
         parent::setUp();
 
-        if (! extension_loaded('openswoole') ) {
+        if (! extension_loaded('openswoole')) {
             $this->markTestSkipped('openswoole or swoole extension not loaded.');
         }
-        defined('BURNER_DRIVER') or define('BURNER_DRIVER', 'OpenSwoole');
+        defined('BURNER_DRIVER') || define('BURNER_DRIVER', 'OpenSwoole');
 
-        //init table
+        // init table
         $openSwooleConfig = new OpenSwoole();
-        $swooleTable = new SwooleTable($openSwooleConfig);
+        $swooleTable      = new SwooleTable($openSwooleConfig);
 
-        $this->config = new Cache();
+        $this->config  = new Cache();
         $this->handler = new BurnerCacheHandler($this->config);
 
         $this->handler->initialize();
@@ -105,11 +108,11 @@ final class OpenSwooleCacheTest extends CIUnitTestCase
 
         $this->assertSame('value', $this->handler->get(self::$key1));
         $this->assertNull($this->handler->get(self::$dummy));
-    
-        //sleep and open TTL-Recycler
-        co::run(function() {
+
+        // sleep and open TTL-Recycler
+        co::run(static function () {
             SwooleTable::instance()->initTtlRecycler();
-            go(function (){
+            go(static function () {
                 co::sleep(3);
                 SwooleTable::instance()->deleteTtlRecycler();
             });
@@ -163,7 +166,7 @@ final class OpenSwooleCacheTest extends CIUnitTestCase
     public function testClean()
     {
         $this->handler->save(self::$key1, 1);
-        $this->assertEquals(1, $this->handler->get(self::$key1));
+        $this->assertSame(1, $this->handler->get(self::$key1));
         $this->handler->clean();
         $this->assertNull($this->handler->get(self::$key1));
     }
@@ -179,5 +182,4 @@ final class OpenSwooleCacheTest extends CIUnitTestCase
     {
         $this->assertTrue($this->handler->isSupported());
     }
-
 }

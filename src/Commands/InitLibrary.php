@@ -80,8 +80,7 @@ class InitLibrary extends BaseCommand
         CLI::write(
             CLI::color(
                 sprintf(
-                    'burner:start %s',
-                    $driver
+                    'burner:start'
                 ),
                 'white',
                 'blue'

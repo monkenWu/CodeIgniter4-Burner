@@ -112,6 +112,17 @@ class ServerStop extends BaseCommand
         } else {
             $loaderPath = realpath(__DIR__ . '/../FrontLoader.php');
         }
-        $integration->stopServer($loaderPath);
+
+        $argvs = $_SERVER['argv'];
+        foreach ($argvs as $key => $argv) {
+            if(in_array($argv, ['spark', $this->name, '--daemon', '--driver'])){
+                unset($argvs[$key]);
+                if($argv == '--driver'){
+                    unset($argvs[$key+1]);
+                }
+            }
+        }
+        $command = implode(' ', $argvs);
+        $integration->stopServer($loaderPath, $command);
     }
 }

@@ -50,7 +50,7 @@ php spark burner:init [RoadRunner, Workerman, OpenSwoole]
 Run the command in the root directory of your project:
 
 ```
-php spark burner:start [RoadRunner, Workerman, OpenSwoole]
+php spark burner:start
 ```
 ## Development Suggestions
 

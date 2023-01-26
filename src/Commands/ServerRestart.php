@@ -84,7 +84,7 @@ class ServerRestart extends BaseCommand
         }
 
         CLI::write(
-            CLI::color("CodeIgniter Burner is stopping. Use Driver: {$driver} ...\n", 'blue')
+            CLI::color("CodeIgniter Burner is restarting. Use Driver: {$driver} ...\n", 'blue')
         );
 
         // init choose driver

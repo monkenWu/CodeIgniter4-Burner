@@ -22,7 +22,7 @@ class Cache extends BaseConfig
      *
      * @var string
      */
-    public $handler = 'burner';
+    public $handler = 'file';
 
     /**
      * --------------------------------------------------------------------------

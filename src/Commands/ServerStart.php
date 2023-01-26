@@ -113,7 +113,19 @@ class ServerStart extends BaseCommand
         } else {
             $loaderPath = realpath(__DIR__ . '/../FrontLoader.php');
         }
+
+        $argvs = $_SERVER['argv'];
+        foreach ($argvs as $key => $argv) {
+            if(in_array($argv, ['spark', $this->name, '--daemon', '--driver'])){
+                unset($argvs[$key]);
+                if($argv == '--driver'){
+                    unset($argvs[$key+1]);
+                }
+            }
+        }
+        $command = implode(' ', $argvs);
+
         $daemon = CLI::getOption('daemon');
-        $integration->startServer($loaderPath, $daemon ?? false);
+        $integration->startServer($loaderPath, $daemon ?? false, $command);
     }
 }

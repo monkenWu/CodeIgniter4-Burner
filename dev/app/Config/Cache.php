@@ -171,13 +171,13 @@ class Cache extends BaseConfig
      * @var array<string, string>
      */
     public $validHandlers = [
-        'dummy'     => DummyHandler::class,
-        'file'      => FileHandler::class,
-        'memcached' => MemcachedHandler::class,
-        'predis'    => PredisHandler::class,
-        'redis'     => RedisHandler::class,
-        'wincache'  => WincacheHandler::class,
+        'dummy'      => DummyHandler::class,
+        'file'       => FileHandler::class,
+        'memcached'  => MemcachedHandler::class,
+        'predis'     => PredisHandler::class,
+        'redis'      => RedisHandler::class,
+        'wincache'   => WincacheHandler::class,
         'openswoole' => OpenSwooleHandler::class,
-        'burner' => \Monken\CIBurner\BurnerCacheHandler::class
+        'burner'     => \Monken\CIBurner\BurnerCacheHandler::class,
     ];
 }

@@ -6,14 +6,14 @@ use CodeIgniter\CLI\BaseCommand;
 use CodeIgniter\CLI\CLI;
 use CodeIgniter\CLI\GeneratorTrait;
 
-class ServerStart extends BaseCommand
+class ServerReload extends BaseCommand
 {
     use GeneratorTrait;
 
     protected $group       = 'burner';
-    protected $name        = 'burner:start';
-    protected $description = 'Start CodeIgniter Burner server.';
-    protected $usage       = 'burner:start [options]';
+    protected $name        = 'burner:reload';
+    protected $description = 'Reload CodeIgniter Burner server.';
+    protected $usage       = 'burner:reload [options]';
 
     /**
      * The Command's Options
@@ -22,7 +22,7 @@ class ServerStart extends BaseCommand
      */
     protected $options = [
         '--driver' => 'You can choose Workerman, RoadRunner and OpenSwoole.',
-        '--daemon' => 'Let burner server work in the background.',
+        '--mode'   => 'Depending on the Driver, the value to be filled in for this option will be different.',
     ];
 
     public function run(array $params)
@@ -85,7 +85,7 @@ class ServerStart extends BaseCommand
         }
 
         CLI::write(
-            CLI::color("Starting CodeIgniter Burner. Use Driver: {$driver} ...\n", 'blue')
+            CLI::color("CodeIgniter Burner is stopping. Use Driver: {$driver} ...\n", 'blue')
         );
 
         // init choose driver
@@ -113,7 +113,11 @@ class ServerStart extends BaseCommand
         } else {
             $loaderPath = realpath(__DIR__ . '/../FrontLoader.php');
         }
-        $daemon = CLI::getOption('daemon');
-        $integration->startServer($loaderPath, $daemon ?? false);
+
+        $command = CLI::getOption('mode') ?? '';
+        if ($command === true) {
+            $command = '';
+        }
+        $integration->reloadServer($loaderPath, $command);
     }
 }

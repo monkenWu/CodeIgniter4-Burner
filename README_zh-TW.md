@@ -49,7 +49,7 @@ php spark burner:init [RoadRunner, Workerman, OpenSwoole]
 在專案根目錄中使用指令執行伺服器：
 
 ```
-php spark burner:start [RoadRunner, Workerman, OpenSwoole]
+php spark burner:start
 ```
 ## 開發建議
 

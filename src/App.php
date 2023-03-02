@@ -2,13 +2,16 @@
 
 namespace Monken\CIBurner;
 
+use Config\Autoload;
+use Config\Modules;
 use CodeIgniter\Config\Factories;
 use CodeIgniter\Config\Services;
+use CodeIgniter\Config\BaseService;
 use Exception;
 use Kint\Kint;
 use Monken\CIBurner\Bridge\Debug\Exceptions;
 use Monken\CIBurner\Bridge\Debug\Toolbar;
-use Monken\CIBurner\Bridge\HandleDBConnection;
+use Monken\CIBurner\Bridge\HandleConnections;
 use Monken\CIBurner\Bridge\RequestHandler;
 use Monken\CIBurner\Bridge\ResponseBridge;
 use Monken\CIBurner\Bridge\UploadedFileBridge;
@@ -16,9 +19,30 @@ use Nyholm\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Throwable;
+use Config\Burner as BurnerConfig;
 
 class App
 {
+    /**
+     * Burner Config Instance
+     *
+     * @var BurnerConfig
+     * @author Monken Wu <monken.wu@tgc-taiwan.com.tw>
+     */
+    protected static BurnerConfig $config;
+
+    /**
+     * Set burner config
+     *
+     * @param BurnerConfig $config
+     * @return void
+     * @author Monken Wu <monken.wu@tgc-taiwan.com.tw>
+     */
+    public static function setConfig(BurnerConfig $config)
+    {
+        self::$config = $config;
+    }
+
     /**
      * run ci4 app
      */
@@ -49,9 +73,7 @@ class App
 
         // run framework and error handling
         try {
-            if (! env('CIROAD_DB_AUTOCLOSE')) {
-                HandleDBConnection::reconnect();
-            }
+            HandleConnections::reconnect(self::$config);
             $app            = \Config\Services::codeigniter();
             $GLOBALS['app'] = &$app;
             $app->initialize();
@@ -99,12 +121,42 @@ class App
             }
         } catch (Throwable $th) {
         }
-        Services::reset(true);
+        self::resetServices();
         Factories::reset();
         unset($_SERVER['HTTP_X_FORWARDED_FOR'], $_SERVER['HTTP_X_REAL_IP'], $_SERVER['HTTP_USER_AGENT']);
         UploadedFileBridge::reset();
-        if (env('CIROAD_DB_AUTOCLOSE')) {
+        if (env('BURNER_DB_AUTOCLOSE')) {
             HandleDBConnection::closeConnect();
         }
     }
+
+    /**
+     * Initialize all instances in the service after the HTTP response
+     * to prevent already used singletons from affecting the next request.
+     *
+     * @return void
+     */
+    public static function resetServices()
+    {
+        $reseter = \Closure::bind(function(array $skipInitServices){
+            $unsetServices = [];
+            foreach (self::$instances as $serviceName => $instance) {
+                if(in_array($serviceName, $skipInitServices) === false){
+                    $unsetServices[] = $serviceName;
+                }
+            }
+            foreach ($unsetServices as $name) {
+                unset(self::$mocks[$name], self::$instances[$name]);
+            }
+            dump(self::$instances);
+            self::autoloader()->initialize(new Autoload(), new Modules());
+        }, new BaseService(), BaseService::class);
+        $skipInitServices = self::$config->skipInitServices;
+
+        if(self::$config->cacheAutoClose === false){
+            $skipInitServices[] = 'cache';
+        }
+        $reseter($skipInitServices);
+    }
+
 }

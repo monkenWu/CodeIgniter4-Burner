@@ -38,10 +38,18 @@ class HandleConnections
             $reConnector = Closure::bind(function () {
                 try {
                     if (! $this->redis->ping()) {
-                        $this->initialize();
+                        try {
+                            $this->initialize();
+                        } catch (\CodeIgniter\Exceptions\CriticalError $e) {
+                            Services::resetSingle('cache');
+                        }
                     }
                 } catch (RedisException $e) {
-                    $this->initialize();
+                    try {
+                        $this->initialize();
+                    } catch (\CodeIgniter\Exceptions\CriticalError $e) {
+                        Services::resetSingle('cache');
+                    }
                 }
             }, $cacheInstance, CacheRedisHandler::class);
             $reConnector();

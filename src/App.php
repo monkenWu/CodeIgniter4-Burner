@@ -2,11 +2,13 @@
 
 namespace Monken\CIBurner;
 
-use Config\Autoload;
-use Config\Modules;
+use Closure;
+use CodeIgniter\Config\BaseService;
 use CodeIgniter\Config\Factories;
 use CodeIgniter\Config\Services;
-use CodeIgniter\Config\BaseService;
+use Config\Autoload;
+use Config\Burner as BurnerConfig;
+use Config\Modules;
 use Exception;
 use Kint\Kint;
 use Monken\CIBurner\Bridge\Debug\Exceptions;
@@ -19,24 +21,18 @@ use Nyholm\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Throwable;
-use Config\Burner as BurnerConfig;
 
 class App
 {
     /**
      * Burner Config Instance
-     *
-     * @var BurnerConfig
-     * @author Monken Wu <monken.wu@tgc-taiwan.com.tw>
      */
     protected static BurnerConfig $config;
 
     /**
      * Set burner config
      *
-     * @param BurnerConfig $config
      * @return void
-     * @author Monken Wu <monken.wu@tgc-taiwan.com.tw>
      */
     public static function setConfig(BurnerConfig $config)
     {
@@ -50,7 +46,6 @@ class App
     {
         // handle request object
         try {
-            Services::reset(true);
             $ci4Request = RequestHandler::initRequest($request, 'workerman');
         } catch (Throwable $e) {
             dump((string) $e);
@@ -125,9 +120,6 @@ class App
         Factories::reset();
         unset($_SERVER['HTTP_X_FORWARDED_FOR'], $_SERVER['HTTP_X_REAL_IP'], $_SERVER['HTTP_USER_AGENT']);
         UploadedFileBridge::reset();
-        if (env('BURNER_DB_AUTOCLOSE')) {
-            HandleDBConnection::closeConnect();
-        }
     }
 
     /**
@@ -138,25 +130,29 @@ class App
      */
     public static function resetServices()
     {
-        $reseter = \Closure::bind(function(array $skipInitServices){
+        $reseter = Closure::bind(static function (array $skipInitServices) {
             $unsetServices = [];
+
             foreach (self::$instances as $serviceName => $instance) {
-                if(in_array($serviceName, $skipInitServices) === false){
+                if (in_array($serviceName, $skipInitServices, true) === false) {
                     $unsetServices[] = $serviceName;
                 }
             }
+
             foreach ($unsetServices as $name) {
                 unset(self::$mocks[$name], self::$instances[$name]);
             }
-            dump(self::$instances);
             self::autoloader()->initialize(new Autoload(), new Modules());
         }, new BaseService(), BaseService::class);
         $skipInitServices = self::$config->skipInitServices;
 
-        if(self::$config->cacheAutoClose === false){
-            $skipInitServices[] = 'cache';
+        if (self::$config->cacheAutoClose === false) {
+            $cacheConfig  = config('cache');
+            $baseInstance = $cacheConfig->validHandlers[$cacheConfig->handler];
+            if (Services::cache() instanceof $baseInstance) {
+                $skipInitServices[] = 'cache';
+            }
         }
         $reseter($skipInitServices);
     }
-
 }

@@ -16,22 +16,22 @@ class Burner extends BaseConfig
     /**
      * Does the DB connection close automatically at the end of each request?
      *
-     * @var boolean
+     * @var bool
      */
     public $dbAutoClose = false;
 
     /**
-     * Does the Cache connection (e.g. Redis) automatically closed 
+     * Does the Cache connection (e.g. Redis) automatically closed
      * at the end of each request?
      *
-     * @var boolean
+     * @var bool
      */
     public $cacheAutoClose = false;
 
     /**
      * Burner automatically initializes all Instances in the Services
      * after an HTTP response, in case an already-used singleton affects
-     * the next request. 
+     * the next request.
      * If your Service does not need to be initialized, then declare
      * the Service name in this string array, which will make the Service
      * persistent and reusable in the Worker.

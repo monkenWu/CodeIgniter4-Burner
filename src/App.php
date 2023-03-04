@@ -118,6 +118,7 @@ class App
         }
         self::resetServices();
         Factories::reset();
+        HandleConnections::close(self::$config);
         unset($_SERVER['HTTP_X_FORWARDED_FOR'], $_SERVER['HTTP_X_REAL_IP'], $_SERVER['HTTP_USER_AGENT']);
         UploadedFileBridge::reset();
     }
@@ -130,7 +131,7 @@ class App
      */
     public static function resetServices()
     {
-        $reseter = Closure::bind(static function (array $skipInitServices) {
+        $reseter = Closure::bind(function (array $skipInitServices) {
             $unsetServices = [];
 
             foreach (self::$instances as $serviceName => $instance) {
@@ -145,14 +146,7 @@ class App
             self::autoloader()->initialize(new Autoload(), new Modules());
         }, new BaseService(), BaseService::class);
         $skipInitServices = self::$config->skipInitServices;
-
-        if (self::$config->cacheAutoClose === false) {
-            $cacheConfig  = config('cache');
-            $baseInstance = $cacheConfig->validHandlers[$cacheConfig->handler];
-            if (Services::cache() instanceof $baseInstance) {
-                $skipInitServices[] = 'cache';
-            }
-        }
+        $skipInitServices[] = 'cache';
         $reseter($skipInitServices);
     }
 }

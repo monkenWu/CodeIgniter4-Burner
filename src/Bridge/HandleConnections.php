@@ -18,11 +18,26 @@ use Throwable;
  */
 class HandleConnections
 {
-    public static function reconnect(BurnerConfig $config)
+
+    public static function close(BurnerConfig $config)
     {
         if ($config->dbAutoClose) {
             self::closeDBConnect();
+        }
+        if ($config->cacheAutoClose) {
+            Services::resetSingle('cache');
         } else {
+            $cacheConfig  = config('cache');
+            $baseInstance = $cacheConfig->validHandlers[$cacheConfig->handler];
+            if ( (Services::cache() instanceof $baseInstance) === false) {
+                Services::resetSingle('cache');
+            }
+        }
+    }
+
+    public static function reconnect(BurnerConfig $config)
+    {
+        if ($config->dbAutoClose === false) {
             self::reconnectDB();
         }
 

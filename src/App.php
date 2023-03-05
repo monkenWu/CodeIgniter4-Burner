@@ -2,13 +2,18 @@
 
 namespace Monken\CIBurner;
 
+use Closure;
+use CodeIgniter\Config\BaseService;
 use CodeIgniter\Config\Factories;
 use CodeIgniter\Config\Services;
+use Config\Autoload;
+use Config\Burner as BurnerConfig;
+use Config\Modules;
 use Exception;
 use Kint\Kint;
 use Monken\CIBurner\Bridge\Debug\Exceptions;
 use Monken\CIBurner\Bridge\Debug\Toolbar;
-use Monken\CIBurner\Bridge\HandleDBConnection;
+use Monken\CIBurner\Bridge\HandleConnections;
 use Monken\CIBurner\Bridge\RequestHandler;
 use Monken\CIBurner\Bridge\ResponseBridge;
 use Monken\CIBurner\Bridge\UploadedFileBridge;
@@ -20,13 +25,27 @@ use Throwable;
 class App
 {
     /**
+     * Burner Config Instance
+     */
+    protected static BurnerConfig $config;
+
+    /**
+     * Set burner config
+     *
+     * @return void
+     */
+    public static function setConfig(BurnerConfig $config)
+    {
+        self::$config = $config;
+    }
+
+    /**
      * run ci4 app
      */
     public static function run(ServerRequestInterface $request, bool $isWebsocket = false): ResponseInterface|bool
     {
         // handle request object
         try {
-            Services::reset(true);
             $ci4Request = RequestHandler::initRequest($request, 'workerman');
         } catch (Throwable $e) {
             dump((string) $e);
@@ -49,9 +68,7 @@ class App
 
         // run framework and error handling
         try {
-            if (! env('CIROAD_DB_AUTOCLOSE')) {
-                HandleDBConnection::reconnect();
-            }
+            HandleConnections::reconnect(self::$config);
             $app            = \Config\Services::codeigniter();
             $GLOBALS['app'] = &$app;
             $app->initialize();
@@ -99,12 +116,37 @@ class App
             }
         } catch (Throwable $th) {
         }
-        Services::reset(true);
+        self::resetServices();
         Factories::reset();
+        HandleConnections::close(self::$config);
         unset($_SERVER['HTTP_X_FORWARDED_FOR'], $_SERVER['HTTP_X_REAL_IP'], $_SERVER['HTTP_USER_AGENT']);
         UploadedFileBridge::reset();
-        if (env('CIROAD_DB_AUTOCLOSE')) {
-            HandleDBConnection::closeConnect();
-        }
+    }
+
+    /**
+     * Initialize all instances in the service after the HTTP response
+     * to prevent already used singletons from affecting the next request.
+     *
+     * @return void
+     */
+    public static function resetServices()
+    {
+        $reseter = Closure::bind(function (array $skipInitServices) {
+            $unsetServices = [];
+
+            foreach (self::$instances as $serviceName => $instance) {
+                if (in_array($serviceName, $skipInitServices, true) === false) {
+                    $unsetServices[] = $serviceName;
+                }
+            }
+
+            foreach ($unsetServices as $name) {
+                unset(self::$mocks[$name], self::$instances[$name]);
+            }
+            self::autoloader()->initialize(new Autoload(), new Modules());
+        }, new BaseService(), BaseService::class);
+        $skipInitServices = self::$config->skipInitServices;
+        $skipInitServices[] = 'cache';
+        $reseter($skipInitServices);
     }
 }

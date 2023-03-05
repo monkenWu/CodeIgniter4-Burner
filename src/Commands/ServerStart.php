@@ -115,11 +115,12 @@ class ServerStart extends BaseCommand
         }
 
         $argvs = $_SERVER['argv'];
+
         foreach ($argvs as $key => $argv) {
-            if(in_array($argv, ['spark', $this->name, '--daemon', '--driver'])){
+            if (in_array($argv, ['spark', $this->name, '--daemon', '--driver'], true)) {
                 unset($argvs[$key]);
-                if($argv == '--driver'){
-                    unset($argvs[$key+1]);
+                if ($argv === '--driver') {
+                    unset($argvs[$key + 1]);
                 }
             }
         }

@@ -79,9 +79,7 @@ class InitLibrary extends BaseCommand
         CLI::write();
         CLI::write(
             CLI::color(
-                sprintf(
-                    'burner:start'
-                ),
+                'burner:start',
                 'white',
                 'blue'
             )

@@ -64,33 +64,32 @@ Please be noticed, while constructing response for the users during developing, 
 
 ### Use return to stop controller logic
 
-Inside the Controller, try using return to stop the controller logic. No matter the response of view or API, reduce the `echo` output usage can avoid lets of errors, just like ths:W
+Inside the Controller, try using return to stop the controller logic. No matter the response of view or API, reduce the `echo` output usage can avoid lets of errors, just like this:
 
 ```php
-<?php namespace App\Controllers;
+namespace App\Controllers;
 
 use CodeIgniter\API\ResponseTrait;
 
 class Home extends BaseController
 {
-  use ResponseTrait;
+    use ResponseTrait;
 
-  public function index()
-  {
-    // Don't use:
-    // echo view('welcome_message');
-    return view('welcome_message');
-  }
+    public function index()
+    {
+        // Don't use:
+        // echo view('welcome_message');
+        return view('welcome_message');
+    }
 
-  /**
-   * send header
-   */
-   public function sendHeader()
-   {
-     $this->response->setHeader("X-Set-Auth-Token", uniqid());
-     return $this->respond(["status"=>true]);
-   }
-
+    /**
+     * send header
+     */
+    public function sendHeader()
+    {
+        $this->response->setHeader("X-Set-Auth-Token", uniqid());
+        return $this->respond(["status" => true]);
+    }
 }
 ```
 
@@ -98,23 +97,38 @@ class Home extends BaseController
 
 We only focus on supporting the Codeigniter4 built-in [Session library](https://codeigniter.com/user_guide/libraries/sessions.html), and do not guarantee if using `session_start()` and `$_SEEEION` can work as normal. So, you should avoid using the PHP built-in Session method, change to the Codeigniter4 framework built-in library.
 
+### External Connections
+
+We only focus on supporting the Codeigniter4 built-in [Database Library](https://codeigniter.com/user_guide/database/index.html) and [Cache Library](https://codeigniter.com/user_guide/libraries/caching.html), hence we do not guarantee if using the PHP
+built-in method should work as normal. Therefore, you should avoid using the PHP built-in method but
+pick the Codeigniter4 framework built-in library.
+
+By default, Worker's DB and Cache should be persistent and try to reconnect once the connection fails.
+Every request into the Worker is using the same connection instance. If you don't want this default setting but want every request to use the reconnected connection instance.
+You can adjust these settings in `Config/Burner.php`.
+
+```php
+public $dbAutoClose = true;
+public $cacheAutoClose = true;
+```
+
+### CodeIgniter Services
+
+CodeIgniter4 allows you to write any class to be managed as a Services Class, and your class will remain as a single instance in the Service Class.
+
+After the HTTP response, Burner automatically initializes all instances in the service in case the already used singleton affects the next request. If your service does not need to be initialized, then declaring the service name in the `skipInitServices` string array in `Config/Burner.php` will make the service persistent and reusable in the Worker.
+
+```php
+public $skipInitServices = [
+  'your',
+  'service',
+  'name'
+];
+```
+
 ### Developing and debugging in a environment with only one Worker
 
 Since the RoadRunner, OpenSwoole and Workerman has fundamentally difference with other server software(i.e. Nginx, Apache), every Codeigniter4 will persist inside RAMs as the form of Worker, HTTP requests will reuse these Workers to process. Hence, we have better develop and test stability under the circumstance with only one Worker to prove it can also work properly under serveral Workers in the formal environment.
-
-### Database Connection
-
-We only focus on supporting the Codeigniter4 built-in [Database Library](https://codeigniter.com/user_guide/database/index.html), hence we do not guarantee if using the PHP
-built-in method should work as normal. Therefore, you should avoid using the PHP built-in database connection method but
-pick the Codeigniter4 framework built-in library.
-
-Under the default situation, DB of the Worker should be lasting, and will try to reconnect once the connection is failed.
-Every Request that goes into Worker is using a same DB connection instance. If you don't want this default setting but expecting
-every Request to use the reconnect DB connection instance. You can add the configuration down below into the `.env`  file under the root directory.
-
-```env
-CIROAD_DB_AUTOCLOSE = true
-```
 
 # Global Methods
 
@@ -127,8 +141,6 @@ Since the RoadRunner and Workerman Worker can not transfer the correct `$_FILES`
 You can fetch the uploaded files by means of `SDPMlab\Ci4Roadrunner\UploadedFileBridge::getPsr7UploadedFiles()` in the controller (or any other places). This method will return an array, consist of Uploaded File objects. The available methods of this object is identical as the regulation of [PSR-7 Uploaded File Interface](https://www.php-fig.org/psr/psr-7/#36-psrhttpmessageuploadedfileinterface).
 
 ```php
-<?php
-
 namespace App\Controllers;
 
 use CodeIgniter\API\ResponseTrait;

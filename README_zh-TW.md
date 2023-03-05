@@ -66,30 +66,29 @@ Codeigniter4 並沒有實作完整的 [HTTP message 介面](https://www.php-fig.
 在 Controller 中，盡量使用 return 結束程式邏輯，不論是視圖的響應或是 API 響應，減少使用 `echo` 輸出內容可以避免很多錯誤，就像這個樣子。
 
 ```php
-<?php namespace App\Controllers;
+namespace App\Controllers;
 
 use CodeIgniter\API\ResponseTrait;
 
 class Home extends BaseController
 {
-	use ResponseTrait;
+    use ResponseTrait;
 
-	public function index()
-	{
-		//Don't use :
-		//echo view('welcome_message');
-		return view('welcome_message');
-	}
+    public function index()
+    {
+        // Don't use:
+        // echo view('welcome_message');
+        return view('welcome_message');
+    }
 
-	/**
-	 * send header
-	 */
-	public function sendHeader()
-	{
-		$this->response->setHeader("X-Set-Auth-Token",uniqid());
-		return $this->respond(["status"=>true]);
-	}
-
+    /**
+     * send header
+     */
+    public function sendHeader()
+    {
+        $this->response->setHeader("X-Set-Auth-Token", uniqid());
+        return $this->respond(["status" => true]);
+    }
 }
 ```
 
@@ -97,19 +96,35 @@ class Home extends BaseController
 
 我們只針對 Codeigniter4 內建 [Session 程式庫](https://codeigniter.tw/user_guide/libraries/sessions.html) 進行支援，並不保證使用 `session_start()` 與 `$_SESSION` 是否能照常運作。所以，你應該避免使用 PHP 內建的 Session 方法，而是以 Codeigniter4 框架內建的程式庫為主。
 
+
+### 外部連線
+
+我們只針對 Codeigniter4 內建的 [Database 程式庫](https://codeigniter.tw/user_guide/database/index.html) 與 [快取程式庫](https://codeigniter.tw/user_guide/libraries/caching.html) 進行支援，並不保證 PHP 內建的方法是否能照常運作。所以，你應該避免使用內建的 PHP 方法，而是以 Codeigniter4 框架內建的程式庫為主。
+
+預設的情況下，在 Worker 中的連線是持久的，並會在連線失效時自動重新連線。所有進入 Worker 的 Request 都使用同一個連線實體。如果你不想要這個預設設定，希望每個進入 Worker 的 Request 都使用重新連線的 DB 或 Cache 連線實體。你調整 `Config/Burner.php` 中的下列設定：
+
+```php
+public $dbAutoClose = true;
+public $cacheAutoClose = true;
+```
+
+### CodeIgniter Services
+
+CodeIgniter4 允許你使用 Services 來管理你所撰寫的類別，你的類別將以單例的方式留存在 Services 類別中。
+
+在 HTTP 響應後，Burner 會自動初始化 Services 類別中的所有實體，防止已經使用過的單例實體影響到下一個請求。如果你所撰寫的 Service 不需要被初始化，那麼請在 `Config/Burner.php` 中的 `skipInitServices` 字串陣列宣告這些 Service 的名字。這將使你所宣告的 Service 在 Worker 中持久化，並被所有請求重複使用。
+
+```php
+public $skipInitServices = [
+  'your',
+  'service',
+  'name'
+];
+```
+
 ### 在只有一個 Worker 的環境中開發與除錯
 
 因為 RoadRunner、OpenSwoole 與 Workerman 與其他伺服器軟體（Nginx、Apache）有著根本上的不同，每個 Codeigniter4 將會以 Worker 的形式持久化於記憶體中，HTTP 的請求會重複利用到這些 Worker 進行處裡。所以，我們最好在只有單個 Worker 的情況下開發軟體並測試是否穩定，以證明在多個 Woker 的實際環境中能正常運作。 
-
-### 資料庫連線
-
-我們只針對 Codeigniter4 內建 [Database 程式庫](https://codeigniter.tw/user_guide/database/index.html) 進行支援，並不保證 PHP 內建的方法是否能照常運作。所以，你應該避免使用內建的 PHP 資料庫連線方法，而是以 Codeigniter4 框架內建的程式庫為主。
-
-預設的情況下，在 Worker 中的 DB 連線是持久的，並會在連線失效時自動重新連線。所有進入 Worker 的 Request 都使用同一個 DB 連線實體。如果你不想要這個預設設定，希望每個進入 Worker 的 Request 都使用重新連線的 DB 連線實體。你可以在專案根目錄下的 `.env` 檔案加入以下設定。
-
-```env
-CIROAD_DB_AUTOCLOSE = true
-```
 
 ## 全域方法
 
@@ -122,8 +137,6 @@ CIROAD_DB_AUTOCLOSE = true
 你可以在控制器（或任何地方），以 `SDPMlab\Ci4Roadrunner\UploadedFileBridge::getPsr7UploadedFiles()` 取得使用者上傳的檔案。這個方法將回傳以 Uploaded File 物件組成的陣列。此物件可用的方法與 [PSR-7 Uploaded File Interface](https://www.php-fig.org/psr/psr-7/#36-psrhttpmessageuploadedfileinterface) 中規範的一樣。
 
 ```php
-<?php
-
 namespace App\Controllers;
 
 use CodeIgniter\API\ResponseTrait;

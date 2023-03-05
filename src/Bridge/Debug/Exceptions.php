@@ -284,8 +284,6 @@ class Exceptions
     /**
      * Describes memory usage in real-world units. Intended for use
      * with memory_get_usage, etc.
-     *
-     * @param $bytes
      */
     public static function describeMemory(int $bytes): string
     {

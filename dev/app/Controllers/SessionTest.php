@@ -28,8 +28,6 @@ final class SessionTest extends BaseController
     /**
      * Created Session
      * Success return 200 code
-     *
-     * @return
      */
     public function createdSession()
     {

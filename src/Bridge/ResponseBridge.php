@@ -131,6 +131,8 @@ class ResponseBridge extends Response
         $html = $ci4Response->getBody();
         if ($html instanceof StreamInterface) {
             return $html;
+        } else if(is_null($html)) {
+            $html = '';
         }
         $body = new Stream('php://temp', 'wb+');
         $body->write($html);

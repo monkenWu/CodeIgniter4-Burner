@@ -34,7 +34,18 @@ class Filters extends BaseConfig
     public $globals = [
         'before' => [
             // 'honeypot',
-            // 'csrf',
+            'csrf'=>[
+                'except' => [
+                    'basicTest/formparamsandquery',
+                    'basicTest/formparams',
+                    'basicTest/cookieCreate',
+                    'FileUploadTest/fileUpload',
+                    'FileUploadTest/fileMultipleUpload',
+                    'testRest',
+                    'testRest/*',
+                    'sessionTest/createdSession'
+                ],
+            ],
             // 'invalidchars',
         ],
         'after' => [

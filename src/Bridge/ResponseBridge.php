@@ -3,6 +3,7 @@
 namespace Monken\CIBurner\Bridge;
 
 use Config\App;
+use Config\Security;
 use Laminas\Diactoros\Response;
 use Laminas\Diactoros\Response\InjectContentTypeTrait;
 use Laminas\Diactoros\Stream;
@@ -26,6 +27,7 @@ class ResponseBridge extends Response
             $this->getCi4StatusCode($ci4Response),
             $this->getCi4Headers($ci4Response)
         );
+
     }
 
     private function getCi4ContentType(\CodeIgniter\HTTP\Response $ci4Response): string
@@ -35,47 +37,14 @@ class ResponseBridge extends Response
 
     private function getCi4Headers(\CodeIgniter\HTTP\Response $ci4Response): array
     {
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            $sessionID        = session_id();
-            $sessionName      = session_name();
-            $cookiesSessionID = $this->_rRequest->getCookieParams()[$sessionName] ?? '';
-            $cookiesParams    = session_get_cookie_params();
-            $config           = config(App::class);
-
-            if ($cookiesSessionID === '') {
-                $cookieStr = $this->getCookieString(
-                    $sessionName,
-                    $sessionID,
-                    (time() + $cookiesParams['lifetime']),
-                    $cookiesParams['path'],
-                    $cookiesParams['domain'],
-                    $cookiesParams['secure'],
-                    $cookiesParams['httponly']
-                );
-                $ci4Response->setHeader('Set-Cookie', $cookieStr);
-            } elseif ($cookiesSessionID !== $sessionID) {
-                $cookieStr = $this->getCookieString(
-                    $sessionName,
-                    '',
-                    time(),
-                    $config->cookiePath,
-                    $config->cookieDomain,
-                    $config->cookieSecure,
-                    $config->cookieHTTPOnly
-                );
-                $ci4Response->setHeader('Set-Cookie', $cookieStr);
-            }
-
-            unset($_SESSION);
-            session_write_close();
-            session_id(null);
-        }
-
+        $setCookiesArray = $this->ci4Cookies($ci4Response);
         $ci4headers = $ci4Response->headers();
         $headers    = [];
-
         foreach ($ci4headers as $key => $value) {
             $headers[$key] = $value->getValueLine();
+        }
+        if (count($setCookiesArray) !== 0) {
+            $headers['Set-Cookie'] = $setCookiesArray;
         }
 
         return $headers;
@@ -105,20 +74,53 @@ class ResponseBridge extends Response
         return $str;
     }
 
-    private function getcookie($name)
+    private function ci4Cookies(\CodeIgniter\HTTP\Response $ci4Response): array
     {
-        $cookies = [];
-        $headers = headers_list();
-
-        foreach ($headers as $header) {
-            if (strpos($header, 'Set-Cookie: ') === 0) {
-                $value = str_replace('&', urlencode('&'), substr($header, 12));
-                parse_str(current(explode(';', $value, 1)), $pair);
-                $cookies = array_merge_recursive($cookies, $pair);
-            }
+        $result = [];
+        $cookies = $ci4Response->getCookies();
+        foreach ($cookies as $cookie) {
+            $headerString = $cookie->toHeaderString();
+            $result[] = $headerString;
         }
 
-        return $cookies[$name] ?? false;
+        //Session
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            $sessionID        = session_id();
+            $sessionName      = session_name();
+            $cookiesSessionID = $this->_rRequest->getCookieParams()[$sessionName] ?? '';
+            $cookiesParams    = session_get_cookie_params();
+            $config           = config(App::class);
+
+            if ($cookiesSessionID === '') {
+                $cookieStr = $this->getCookieString(
+                    $sessionName,
+                    $sessionID,
+                    (time() + $cookiesParams['lifetime']),
+                    $cookiesParams['path'],
+                    $cookiesParams['domain'],
+                    $cookiesParams['secure'],
+                    $cookiesParams['httponly']
+                );
+                $result[] = $cookieStr;
+            } elseif ($cookiesSessionID !== $sessionID) {
+                $cookieStr = $this->getCookieString(
+                    $sessionName,
+                    '',
+                    time(),
+                    $config->cookiePath,
+                    $config->cookieDomain,
+                    $config->cookieSecure,
+                    $config->cookieHTTPOnly
+                );
+                $result[] = $cookieStr;
+            }
+
+            unset($_SESSION);
+            session_write_close();
+            session_id(null);
+        }
+        
+        return $result;
     }
 
     private function getCi4StatusCode(\CodeIgniter\HTTP\Response $ci4Response): int

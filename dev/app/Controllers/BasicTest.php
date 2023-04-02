@@ -93,4 +93,47 @@ final class BasicTest extends BaseController
     {
         echo lang('Burner.negotiate');
     }
+
+    /**
+     * test cookie
+     */
+    public function cookieCreate()
+    {
+        $text1 = $this->request->getGet('text1');
+        $text2 = $this->request->getGet('text2');
+        $text3 = $this->request->getGet('text3');
+
+        $this->response->setCookie('text1', $text1, 3600);
+        $this->response->setCookie('text2', $text2, 3600);
+        $this->response->setCookie('text3', $text3, 3600);
+
+        return $this->respond(['status' => true]);
+    }
+
+    /**
+     * csrf test
+     */
+    public function csrfCreate()
+    {
+        $token = csrf_token();
+        $hash  = csrf_hash();
+        $body = <<< HTML
+            <form action="/basicTest/csrfVerify" method="post">
+                <input name="{$token}" value='{$hash}' />
+                <input type="text" name="text1" />
+                <input type="submit" value="submit" />
+            </form>
+        HTML;
+        return $body;
+    }
+
+    /**
+     * csrf verify
+     */
+    public function csrfVerify()
+    {
+        $text = $this->request->getPost('text1');
+        return $this->respond($text, 200);
+    }
+
 }

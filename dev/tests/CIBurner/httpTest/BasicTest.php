@@ -137,4 +137,84 @@ final class BasicTest extends CIUnitTestCase
         $this->assertSame(200, $response->getStatusCode());
         $this->assertSame('正體中文', $response->getBody());
     }
+
+    public function testSetCookies()
+    {
+        $text1 = md5(uniqid().'text1');
+        $text2 = md5(uniqid().'text2');
+        $text3 = md5(uniqid().'text3');
+        $query = http_build_query([
+            'text1' => $text1,
+            'text2' => $text2,
+            'text3' => $text3,
+        ]);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, 'http://localhost:8080/basicTest/cookieCreate?' . $query);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_HEADER, 1);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+        //get url query
+        $output = curl_exec($ch);
+        curl_close($ch);
+        $cookies = [];
+        preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $output, $matches);
+        foreach ($matches[1] as $item) {
+            parse_str($item, $cookie);
+            $cookies = array_merge($cookies, $cookie);
+        }
+        
+        foreach ($cookies as $key => $value) {
+            $this->assertSame(${$key}, $value);
+        }
+    }
+
+    public function testCsrf()
+    {
+        //config
+        config('Security');
+        $tokenName = config('Security')->tokenName;
+        $headerName = config('Security')->headerName;
+        $client = Services::curlrequest([
+            'base_uri' => 'http://localhost:8080/',
+        ], null, null, false);
+
+        //get csrf key
+        $getCsrfKey = function() use ($client){
+            $response = $client->get('/basicTest/csrfCreate');
+            $this->assertSame(200, $response->getStatusCode());
+            $setCookie = $response->getHeaders()['Set-Cookie']->getValue();
+            $csrf   = explode('=', explode(';', $setCookie)[0]);
+            return $csrf;
+        };
+
+        //csrf form teset
+        $csrf = $getCsrfKey();
+        $text1 = md5(uniqid().'text1');
+        $response = $client->post('basicTest/csrfVerify', [
+            'headers' => [
+                'Cookie' => "{$csrf[0]}={$csrf[1]}",
+            ],
+            'form_params' => [
+                $tokenName => $csrf[1],
+                'text1' => $text1,
+            ],
+        ]);
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame($text1, $response->getBody());
+
+        //csrf header test
+        $csrf = $getCsrfKey();
+        $text1 = md5(uniqid().'text1');
+        $response = $client->post('basicTest/csrfVerify', [
+            'headers' => [
+                'Cookie' => "{$csrf[0]}={$csrf[1]}",
+                $headerName => $csrf[1],
+            ],
+            'form_params' => [
+                'text1' => $text1,
+            ],
+        ]);
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame($text1, $response->getBody());
+    }
 }

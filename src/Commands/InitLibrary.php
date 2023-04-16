@@ -89,7 +89,7 @@ class InitLibrary extends BaseCommand
 
     protected function publishBurnerConfig(string $driver)
     {
-        $basePath   = ROOTPATH . 'app/Config' . DIRECTORY_SEPARATOR;
+        $basePath   = APPPATH . 'Config' . DIRECTORY_SEPARATOR;
         $configPath = $basePath . 'Burner.php';
 
         if (file_exists($configPath)) {

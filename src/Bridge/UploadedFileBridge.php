@@ -42,20 +42,20 @@ class UploadedFileBridge
     ): array {
         if (! (self::$_instance instanceof UploadedFileBridge)) {
             if ($isBurner) {
-                $isWorkerMan = false;
+                $needNewInstance = false;
                 $check       = reset($files);
                 if (is_array($check)) {
-                    $isWorkerMan = true;
+                    $needNewInstance = true;
                     $multiCheck  = reset($check);
                     if ($multiCheck instanceof \Psr\Http\Message\UploadedFileInterface) {
-                        $isWorkerMan = false;
+                        $needNewInstance = false;
                     }
                 }
                 self::$_instance = new UploadedFileBridge(
                     $files,
                     $isBurner,
-                    // is WorkerMan files?
-                    $isWorkerMan
+                    // is need new file instance ?
+                    $needNewInstance
                 );
             } else {
                 self::$_instance = new UploadedFileBridge();

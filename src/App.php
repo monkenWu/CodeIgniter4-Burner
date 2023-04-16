@@ -46,7 +46,7 @@ class App
     {
         // handle request object
         try {
-            $ci4Request = RequestHandler::initRequest($request, 'workerman');
+            $ci4Request = RequestHandler::initRequest($request);
         } catch (Throwable $e) {
             dump((string) $e);
         }
@@ -119,7 +119,6 @@ class App
         self::resetServices();
         Factories::reset();
         HandleConnections::close(self::$config);
-        unset($_SERVER['HTTP_X_FORWARDED_FOR'], $_SERVER['HTTP_X_REAL_IP'], $_SERVER['HTTP_USER_AGENT']);
         UploadedFileBridge::reset();
     }
 

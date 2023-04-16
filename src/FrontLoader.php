@@ -18,10 +18,8 @@ if ($vendorPath === '') {
     exit;
 }
 
-$paths = 'app/Config/Paths.php';
-
 require_once realpath($vendorPath . 'autoload.php');
-$pathsConfig = realpath($vendorPath . '../app/Config/Paths.php');
+$pathsConfig = realpath( APPPATH . '/Config/Paths.php');
 // Path to the front loader (this file)
 defined('FCPATH') || define('FCPATH', __DIR__ . DIRECTORY_SEPARATOR);
 chdir(FCPATH);

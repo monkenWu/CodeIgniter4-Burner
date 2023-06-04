@@ -103,11 +103,11 @@ final class BasicTest extends BaseController
         $text2 = $this->request->getGet('text2');
         $text3 = $this->request->getGet('text3');
 
-        $this->response->setCookie('text1', $text1, 3600);
-        $this->response->setCookie('text2', $text2, 3600);
-        $this->response->setCookie('text3', $text3, 3600);
+        response()->setCookie('text1', $text1, 3600);
+        response()->setCookie('text2', $text2, 3600);
+        response()->setCookie('text3', $text3, 3600);
 
-        return $this->respond(['status' => true]);
+        response()->setJSON(['status' => true])->send();
     }
 
     /**

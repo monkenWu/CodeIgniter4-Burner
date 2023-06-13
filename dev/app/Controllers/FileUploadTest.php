@@ -19,6 +19,76 @@ final class FileUploadTest extends BaseController
      */
     public function fileUpload()
     {
+        /**
+         * @var \CodeIgniter\HTTP\Files\UploadedFile[]
+         */
+        $files = $this->request->getFiles();
+        $data = [];
+        
+        foreach ($files as $file) {
+            $newFileName = $file->getRandomName();
+            $newFileNamePath = WRITEPATH . 'uploads' . DIRECTORY_SEPARATOR . $newFileName;
+            if(BURNER_DRIVER == 'OpenSwoole'){
+                if ($file->isValid() && ! $file->hasMoved()) {
+                    $file->move(WRITEPATH . 'uploads' , $newFileName);
+                    $data[$file->getClientName()] = md5_file($newFileNamePath);
+                }else{
+                    $data[$file->getClientName()] = 'move error';
+                }
+                continue;
+            }else{
+                if (!$file->hasMoved()) {
+                    rename($file->getTempName(), $newFileNamePath);
+                    $data[$file->getClientName()] = md5_file($newFileNamePath);
+                }else{
+                    $data[$file->getClientName()] = 'move error';
+                }
+            }
+        }
+
+        return $this->respondCreated($data);
+    }
+
+    /**
+     * psr form-data multiple upload
+     */
+    public function fileMultipleUpload()
+    {
+        /**
+         * @var \CodeIgniter\HTTP\Files\UploadedFile[]
+         */
+        $files = $this->request->getFileMultiple('data');
+        $data = [];
+
+        foreach ($files as $file) {
+            $newFileName = $file->getRandomName();
+            $newFileNamePath = WRITEPATH . 'uploads' . DIRECTORY_SEPARATOR . $newFileName;
+            if(BURNER_DRIVER == 'OpenSwoole'){
+                if ($file->isValid() && ! $file->hasMoved()) {
+                    $file->move(WRITEPATH . 'uploads' , $newFileName);
+                    $data[$file->getClientName()] = md5_file($newFileNamePath);
+                }else{
+                    $data[$file->getClientName()] = 'move error';
+                }
+                continue;
+            }else{
+                if (!$file->hasMoved()) {
+                    rename($file->getTempName(), $newFileNamePath);
+                    $data[$file->getClientName()] = md5_file($newFileNamePath);
+                }else{
+                    $data[$file->getClientName()] = 'move error';
+                }
+            }
+        }
+
+        return $this->respondCreated($data);
+    }
+
+    /**
+     * psr form-data
+     */
+    public function psrFileUpload()
+    {
         $files = UploadedFileBridge::getPsr7UploadedFiles();
         $data  = [];
 
@@ -35,9 +105,9 @@ final class FileUploadTest extends BaseController
     }
 
     /**
-     * form-data multiple upload
+     * psr form-data multiple upload
      */
-    public function fileMultipleUpload()
+    public function psrFileMultipleUpload()
     {
         $files = UploadedFileBridge::getPsr7UploadedFiles()['data'];
         $data  = [];

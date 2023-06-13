@@ -113,6 +113,7 @@ class App
             }
         } catch (Throwable $th) {
         }
+        $_FILES = [];
         self::resetServices();
         Factories::reset();
         HandleConnections::close(self::$config);

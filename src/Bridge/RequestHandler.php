@@ -36,8 +36,71 @@ class RequestHandler
     protected static function setFile()
     {
         if (self::$_rRequest->getUploadedFiles() !== []) {
-            UploadedFileBridge::getPsr7UploadedFiles(self::$_rRequest->getUploadedFiles(), true);
+            $fixedFiles = self::$_rRequest->getUploadedFiles();
+            if(BURNER_DRIVER == 'RoadRunner'){
+                $fixedFiles = self::reverserPsr7UploadedArrayToFilesArray($fixedFiles);
+            }
+            $_FILES = self::reverseFixedFilesArray($fixedFiles);
+
         }
+    }
+
+    protected static function reverserPsr7UploadedArrayToFilesArray(array $psr7FileArray): array
+    {
+        $result = [];
+        foreach ($psr7FileArray as $name => $data) {
+            if ($data instanceof \Psr\Http\Message\UploadedFileInterface) {
+                $result[$name] = [
+                    'name'     => $data->getClientFilename(),
+                    'type'     => $data->getClientMediaType(),
+                    'tmp_name' => realpath($data->getStream()->getMetadata('uri')),
+                    'error'    => $data->getError(),
+                    'size'     => $data->getSize(),
+                ];
+            } else {
+                $result[$name] = self::reverserPsr7UploadedArrayToFilesArray($data);
+            }
+        }
+        return $result;
+    }
+
+    protected static function reverseFixedFilesArray(array $fixedFilesArray): array
+    {
+        $output = [];
+        foreach ($fixedFilesArray as $name => &$array) {
+            foreach ($array as $field => $value) {
+                $pointer = &$output[$name];
+                
+                if (!is_array($value)) {
+                    if($field == 'tmp_name'){
+                        $value = realpath($value);
+                    }
+                    $pointer[$field] = $value;
+                    continue;
+                } else {
+                    $value['tmp_name'] = realpath($value['tmp_name']);
+                }
+
+                $stack    = [&$pointer];
+                $iterator = new \RecursiveIteratorIterator(
+                    new \RecursiveArrayIterator($value),
+                    \RecursiveIteratorIterator::SELF_FIRST
+                );
+
+                foreach ($iterator as $key => $val) {
+                    array_splice($stack, $iterator->getDepth() + 1);
+                    $pointer = &$stack[count($stack) - 1];
+                    $pointer = &$pointer[$key];
+                    $stack[] = &$pointer;
+
+                    if (!$iterator->hasChildren()) {
+                        $pointer[$field] = $val;
+                    }
+                }
+            }
+        }
+
+        return $output;
     }
 
     protected static function getBody()

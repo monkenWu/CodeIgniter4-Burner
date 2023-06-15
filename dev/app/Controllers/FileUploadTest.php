@@ -3,7 +3,6 @@
 namespace App\Controllers;
 
 use CodeIgniter\API\ResponseTrait;
-use Monken\CIBurner\Bridge\UploadedFileBridge;
 
 /**
  * @internal
@@ -19,38 +18,73 @@ final class FileUploadTest extends BaseController
      */
     public function fileUpload()
     {
-        $files = UploadedFileBridge::getPsr7UploadedFiles();
-        $data  = [];
-
+        /**
+         * @var \CodeIgniter\HTTP\Files\UploadedFile[]
+         */
+        $files = $this->request->getFiles();
+        $data = [];
+        
         foreach ($files as $file) {
-            $fileNameArr = explode('.', $file->getClientFilename());
-            $fileEx      = array_pop($fileNameArr);
-            $newFileName = uniqid(mt_rand()) . '.' . $fileEx;
-            $newFilePath = WRITEPATH . 'uploads' . DIRECTORY_SEPARATOR . $newFileName;
-            $file->moveTo($newFilePath);
-            $data[$file->getClientFilename()] = md5_file($newFilePath);
+            $newFileName = $file->getRandomName();
+            $newFileNamePath = WRITEPATH . 'uploads' . DIRECTORY_SEPARATOR . $newFileName;
+            if(BURNER_DRIVER == 'OpenSwoole'){
+                if ($file->isValid() && ! $file->hasMoved()) {
+                    $file->move(WRITEPATH . 'uploads' , $newFileName);
+                    $data[$file->getClientName()] = md5_file($newFileNamePath);
+                }else{
+                    $data[$file->getClientName()] = 'move error';
+                }
+                continue;
+            }else{
+                if (!$file->hasMoved()) {
+                    rename($file->getTempName(), $newFileNamePath);
+                    $data[$file->getClientName()] = md5_file($newFileNamePath);
+                }else{
+                    $data[$file->getClientName()] = 'move error';
+                }
+            }
         }
+
+        $data['mixForm'] = $this->request->getPost('mixForm');
 
         return $this->respondCreated($data);
     }
 
     /**
-     * form-data multiple upload
+     * psr form-data multiple upload
      */
     public function fileMultipleUpload()
     {
-        $files = UploadedFileBridge::getPsr7UploadedFiles()['data'];
-        $data  = [];
+        /**
+         * @var \CodeIgniter\HTTP\Files\UploadedFile[]
+         */
+        $files = $this->request->getFileMultiple('data');
+        $data = [];
 
         foreach ($files as $file) {
-            $fileNameArr = explode('.', $file->getClientFilename());
-            $fileEx      = array_pop($fileNameArr);
-            $newFileName = uniqid(mt_rand()) . '.' . $fileEx;
-            $newFilePath = WRITEPATH . 'uploads' . DIRECTORY_SEPARATOR . $newFileName;
-            $file->moveTo($newFilePath);
-            $data[$file->getClientFilename()] = md5_file($newFilePath);
+            $newFileName = $file->getRandomName();
+            $newFileNamePath = WRITEPATH . 'uploads' . DIRECTORY_SEPARATOR . $newFileName;
+            if(BURNER_DRIVER == 'OpenSwoole'){
+                if ($file->isValid() && ! $file->hasMoved()) {
+                    $file->move(WRITEPATH . 'uploads' , $newFileName);
+                    $data[$file->getClientName()] = md5_file($newFileNamePath);
+                }else{
+                    $data[$file->getClientName()] = 'move error';
+                }
+                continue;
+            }else{
+                if (!$file->hasMoved()) {
+                    rename($file->getTempName(), $newFileNamePath);
+                    $data[$file->getClientName()] = md5_file($newFileNamePath);
+                }else{
+                    $data[$file->getClientName()] = 'move error';
+                }
+            }
         }
+
+        $data['mixForm'] = $this->request->getPost('mixForm');
 
         return $this->respondCreated($data);
     }
+
 }

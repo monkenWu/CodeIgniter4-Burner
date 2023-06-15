@@ -49,11 +49,11 @@ class RequestHandler
     {
         $result = [];
         foreach ($psr7FileArray as $name => $data) {
-            if ($data instanceof \Nyholm\Psr7\UploadedFile) {
+            if ($data instanceof \Psr\Http\Message\UploadedFileInterface) {
                 $result[$name] = [
                     'name'     => $data->getClientFilename(),
                     'type'     => $data->getClientMediaType(),
-                    'tmp_name' => $data->getStream()->getMetadata('uri'),
+                    'tmp_name' => realpath($data->getStream()->getMetadata('uri')),
                     'error'    => $data->getError(),
                     'size'     => $data->getSize(),
                 ];

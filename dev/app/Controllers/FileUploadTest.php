@@ -45,6 +45,8 @@ final class FileUploadTest extends BaseController
             }
         }
 
+        $data['mixForm'] = $this->request->getPost('mixForm');
+
         return $this->respondCreated($data);
     }
 
@@ -79,6 +81,8 @@ final class FileUploadTest extends BaseController
                 }
             }
         }
+
+        $data['mixForm'] = $this->request->getPost('mixForm');
 
         return $this->respondCreated($data);
     }

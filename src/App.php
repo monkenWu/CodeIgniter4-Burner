@@ -16,7 +16,6 @@ use Monken\CIBurner\Bridge\Debug\Toolbar;
 use Monken\CIBurner\Bridge\HandleConnections;
 use Monken\CIBurner\Bridge\RequestHandler;
 use Monken\CIBurner\Bridge\ResponseBridge;
-use Monken\CIBurner\Bridge\UploadedFileBridge;
 use Nyholm\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -72,11 +71,10 @@ class App
             $app            = \Config\Services::codeigniter();
             $GLOBALS['app'] = &$app;
             $app->initialize();
-            $app->setContext('web')->setRequest($ci4Request)->run(returnResponse: true);
+            $ci4Response = $app->setContext('web')->setRequest($ci4Request)->run(returnResponse: true);
             if ($isWebsocket) {
                 return true;
             }
-            $ci4Response = Services::response();
         } catch (Throwable $e) {
             $exception = new Exceptions($request);
             $response  = $exception->exceptionHandler($e);
@@ -94,8 +92,6 @@ class App
             // Application code logic
             $response = new ResponseBridge($ci4Response, $request);
             unset($app);
-
-            return $response;
         } catch (Exception $e) {
             return new Response(500, [], 'Something Went Wrong!');
         }
@@ -116,10 +112,10 @@ class App
             }
         } catch (Throwable $th) {
         }
+        $_FILES = [];
         self::resetServices();
         Factories::reset();
         HandleConnections::close(self::$config);
-        UploadedFileBridge::reset();
     }
 
     /**

@@ -39,8 +39,7 @@ class Filters extends BaseConfig
                     'basicTest/formparamsandquery',
                     'basicTest/formparams',
                     'basicTest/cookieCreate',
-                    'FileUploadTest/fileUpload',
-                    'FileUploadTest/fileMultipleUpload',
+                    'FileUploadTest/*',
                     'testRest',
                     'testRest/*',
                     'sessionTest/createdSession'

@@ -168,12 +168,11 @@ final class BasicTest extends CIUnitTestCase
         }
     }
 
-    public function testCsrf()
+    public function testCsrfFormParams()
     {
         //config
         config('Security');
         $tokenName = config('Security')->tokenName;
-        $headerName = config('Security')->headerName;
         $client = Services::curlrequest([
             'base_uri' => 'http://localhost:8080/',
         ], null, null, false);
@@ -182,7 +181,7 @@ final class BasicTest extends CIUnitTestCase
         $getCsrfKey = function() use ($client){
             $response = $client->get('/basicTest/csrfCreate');
             $this->assertSame(200, $response->getStatusCode());
-            $setCookie = $response->getHeaders()['Set-Cookie']->getValue();
+            $setCookie = $response->getHeaderLine('Set-Cookie');
             $csrf   = explode('=', explode(';', $setCookie)[0]);
             return $csrf;
         };
@@ -201,6 +200,25 @@ final class BasicTest extends CIUnitTestCase
         ]);
         $this->assertSame(200, $response->getStatusCode());
         $this->assertSame($text1, $response->getBody());
+    }
+
+    public function testCsrfFormHeader()
+    {
+        //config
+        config('Security');
+        $headerName = config('Security')->headerName;
+        $client = Services::curlrequest([
+            'base_uri' => 'http://localhost:8080/',
+        ], null, null, false);
+
+        //get csrf key
+        $getCsrfKey = function() use ($client){
+            $response = $client->get('/basicTest/csrfCreate');
+            $this->assertSame(200, $response->getStatusCode());
+            $setCookie = $response->getHeaderLine('Set-Cookie');
+            $csrf   = explode('=', explode(';', $setCookie)[0]);
+            return $csrf;
+        };
 
         //csrf header test
         $csrf = $getCsrfKey();
@@ -217,4 +235,5 @@ final class BasicTest extends CIUnitTestCase
         $this->assertSame(200, $response->getStatusCode());
         $this->assertSame($text1, $response->getBody());
     }
+
 }

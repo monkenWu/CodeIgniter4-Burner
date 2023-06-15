@@ -3,7 +3,6 @@
 namespace App\Controllers;
 
 use CodeIgniter\API\ResponseTrait;
-use Monken\CIBurner\Bridge\UploadedFileBridge;
 
 /**
  * @internal
@@ -84,43 +83,4 @@ final class FileUploadTest extends BaseController
         return $this->respondCreated($data);
     }
 
-    /**
-     * psr form-data
-     */
-    public function psrFileUpload()
-    {
-        $files = UploadedFileBridge::getPsr7UploadedFiles();
-        $data  = [];
-
-        foreach ($files as $file) {
-            $fileNameArr = explode('.', $file->getClientFilename());
-            $fileEx      = array_pop($fileNameArr);
-            $newFileName = uniqid(mt_rand()) . '.' . $fileEx;
-            $newFilePath = WRITEPATH . 'uploads' . DIRECTORY_SEPARATOR . $newFileName;
-            $file->moveTo($newFilePath);
-            $data[$file->getClientFilename()] = md5_file($newFilePath);
-        }
-
-        return $this->respondCreated($data);
-    }
-
-    /**
-     * psr form-data multiple upload
-     */
-    public function psrFileMultipleUpload()
-    {
-        $files = UploadedFileBridge::getPsr7UploadedFiles()['data'];
-        $data  = [];
-
-        foreach ($files as $file) {
-            $fileNameArr = explode('.', $file->getClientFilename());
-            $fileEx      = array_pop($fileNameArr);
-            $newFileName = uniqid(mt_rand()) . '.' . $fileEx;
-            $newFilePath = WRITEPATH . 'uploads' . DIRECTORY_SEPARATOR . $newFileName;
-            $file->moveTo($newFilePath);
-            $data[$file->getClientFilename()] = md5_file($newFilePath);
-        }
-
-        return $this->respondCreated($data);
-    }
 }

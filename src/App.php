@@ -16,7 +16,6 @@ use Monken\CIBurner\Bridge\Debug\Toolbar;
 use Monken\CIBurner\Bridge\HandleConnections;
 use Monken\CIBurner\Bridge\RequestHandler;
 use Monken\CIBurner\Bridge\ResponseBridge;
-use Monken\CIBurner\Bridge\UploadedFileBridge;
 use Nyholm\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -117,7 +116,6 @@ class App
         self::resetServices();
         Factories::reset();
         HandleConnections::close(self::$config);
-        UploadedFileBridge::reset();
     }
 
     /**

@@ -37,18 +37,40 @@ class RequestHandler
     {
         if (self::$_rRequest->getUploadedFiles() !== []) {
             $fixedFiles = self::$_rRequest->getUploadedFiles();
-            UploadedFileBridge::getPsr7UploadedFiles($fixedFiles, true);
+            if(BURNER_DRIVER == 'RoadRunner'){
+                $fixedFiles = self::reverserPsr7UploadedArrayToFilesArray($fixedFiles);
+            }
             $_FILES = self::reverseFixedFilesArray($fixedFiles);
+
         }
+    }
+
+    protected static function reverserPsr7UploadedArrayToFilesArray(array $psr7FileArray): array
+    {
+        $result = [];
+        foreach ($psr7FileArray as $name => $data) {
+            if ($data instanceof \Nyholm\Psr7\UploadedFile) {
+                $result[$name] = [
+                    'name'     => $data->getClientFilename(),
+                    'type'     => $data->getClientMediaType(),
+                    'tmp_name' => $data->getStream()->getMetadata('uri'),
+                    'error'    => $data->getError(),
+                    'size'     => $data->getSize(),
+                ];
+            } else {
+                $result[$name] = self::reverserPsr7UploadedArrayToFilesArray($data);
+            }
+        }
+        return $result;
     }
 
     protected static function reverseFixedFilesArray(array $fixedFilesArray): array
     {
         $output = [];
-        foreach ($fixedFilesArray as $name => $array) {
+        foreach ($fixedFilesArray as $name => &$array) {
             foreach ($array as $field => $value) {
                 $pointer = &$output[$name];
-
+                
                 if (!is_array($value)) {
                     if($field == 'tmp_name'){
                         $value = realpath($value);

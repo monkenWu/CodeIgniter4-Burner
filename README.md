@@ -23,10 +23,6 @@ Burner is an out-of-the-box library for CodeIgniter4 that supports [RoadRunner](
 
 Use "Composer" to download the library and its dependencies to the project
 
-```
-composer require monken/codeigniter4-burner
-```
-
 You can install the appropriate Driver according to your preference.
 
 Each Driver has its own development rules to be aware of, as well as some proprietary server commands, which you can find in their Git repository README files.

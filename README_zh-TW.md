@@ -21,10 +21,6 @@ Burner 是一款專屬於 CodeIgniter4 的開箱即用的程式庫，它支援 [
 
 於專案根目錄下，使用 Composer 下載程式庫與其所需之依賴。
 
-```
-composer require monken/codeigniter4-burner
-```
-
 你可以依據你的喜好安裝對應的伺服器驅動。
 
 每個驅動程式都有相應的開發規則，以及一些專屬的伺服器指令，你可以在它們的 Git 儲存庫 README 檔案中閱讀它們。
@@ -32,18 +28,18 @@ composer require monken/codeigniter4-burner
 * [OpenSwoole 驅動](https://github.com/monkenWu/CodeIgniter4-Burner-OpenSwoole)
 
   ```
-  composer require monken/codeigniter4-burner-openswoole
+  composer require monken/codeigniter4-burner-openswoole:^1.0@beta
   ```
 * [RoadRunner 驅動](https://github.com/monkenWu/CodeIgniter4-Burner-RoadRunner)
 
   ```
-  composer require monken/codeigniter4-burner-roadrunner
+  composer require monken/codeigniter4-burner-roadrunner:^1.0@beta
   ```
 
 * [Workerman 驅動](https://github.com/monkenWu/CodeIgniter4-Burner-Workerman)
 
   ```
-  composer require monken/codeigniter4-burner-workerman
+  composer require monken/codeigniter4-burner-workerman:^1.0@beta
   ```
 
 安裝好驅動後，使用程式庫提供的內建指令初始化伺服器與其所需的檔案。

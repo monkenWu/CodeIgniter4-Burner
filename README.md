@@ -23,10 +23,6 @@ Burner is an out-of-the-box library for CodeIgniter4 that supports [RoadRunner](
 
 Use "Composer" to download the library and its dependencies to the project
 
-```
-composer require monken/codeigniter4-burner
-```
-
 You can install the appropriate Driver according to your preference.
 
 Each Driver has its own development rules to be aware of, as well as some proprietary server commands, which you can find in their Git repository README files.
@@ -34,18 +30,18 @@ Each Driver has its own development rules to be aware of, as well as some propri
 * [OpenSwoole Driver](https://github.com/monkenWu/CodeIgniter4-Burner-OpenSwoole)
 
   ```
-  composer require monken/codeigniter4-burner-openswoole
+  composer require monken/codeigniter4-burner-openswoole:^1.0@beta
   ```
 * [RoadRunner Driver](https://github.com/monkenWu/CodeIgniter4-Burner-RoadRunner)
 
   ```
-  composer require monken/codeigniter4-burner-roadrunner
+  composer require monken/codeigniter4-burner-roadrunner:^1.0@beta
   ```
 
 * [Workerman Driver](https://github.com/monkenWu/CodeIgniter4-Burner-Workerman)
 
   ```
-  composer require monken/codeigniter4-burner-workerman
+  composer require monken/codeigniter4-burner-workerman:^1.0@beta
   ```
 
 After installing the driver, initialize the server files using the built-in commands in the library

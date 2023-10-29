@@ -32,13 +32,19 @@ if (! function_exists('is_cli')) {
     }
 }
 
-// Ci4 4.2.0 init
+// Ci4 4.4 init
 require_once realpath($pathsConfig) ?: $pathsConfig;
 $paths     = new \Config\Paths();
 $botstorap = rtrim($paths->systemDirectory, '\\/ ') . DIRECTORY_SEPARATOR . 'bootstrap.php';
 require_once realpath($botstorap);
 require_once SYSTEMPATH . 'Config/DotEnv.php';
 (new \CodeIgniter\Config\DotEnv(ROOTPATH))->load();
+
+// Define ENVIRONMENT
+if (! defined('ENVIRONMENT')) {
+    define('ENVIRONMENT', env('CI_ENVIRONMENT', 'production'));
+}
+
 $app = \Config\Services::codeigniter();
 $app->initialize();
 $app->setContext('web');

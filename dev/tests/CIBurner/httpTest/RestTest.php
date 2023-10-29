@@ -13,7 +13,7 @@ final class RestTest extends CIUnitTestCase
         $client = Services::curlrequest([
             'base_uri' => 'http://localhost:8080/',
         ], null, null, false);
-        $response = $client->get('/testRest');
+        $response = $client->get('/TestRest');
         $this->assertSame(200, $response->getStatusCode());
     }
 
@@ -23,7 +23,7 @@ final class RestTest extends CIUnitTestCase
             'base_uri' => 'http://localhost:8080/',
         ], null, null, false);
         $id       = uniqid();
-        $response = $client->get("/testRest/{$id}");
+        $response = $client->get("/TestRest/{$id}");
         $this->assertSame(200, $response->getStatusCode());
         $getJson = json_decode($response->getBody(), true);
         $this->assertSame($id, $getJson['id']);
@@ -37,7 +37,7 @@ final class RestTest extends CIUnitTestCase
         $text1    = uniqid();
         $text2    = uniqid();
         $verify   = md5($text1 . $text2);
-        $response = $client->post('/testRest', [
+        $response = $client->post('/TestRest', [
             'http_errors' => false,
             'json'        => [
                 'text1' => $text1,
@@ -59,7 +59,7 @@ final class RestTest extends CIUnitTestCase
         $text2    = uniqid();
         $verify   = md5($text1 . $text2);
         $id       = uniqid();
-        $response = $client->put("/testRest/{$id}", [
+        $response = $client->put("/TestRest/{$id}", [
             'http_errors' => false,
             'json'        => [
                 'text1' => $text1,
@@ -78,7 +78,7 @@ final class RestTest extends CIUnitTestCase
         $client = Services::curlrequest([
             'base_uri' => 'http://localhost:8080/',
         ], null, null, false);
-        $response = $client->get('/testRest/new');
+        $response = $client->get('/TestRest/new');
         $this->assertSame(200, $response->getStatusCode());
         $this->assertSame('newView', $response->getBody());
     }
@@ -89,7 +89,7 @@ final class RestTest extends CIUnitTestCase
             'base_uri' => 'http://localhost:8080/',
         ], null, null, false);
         $id       = uniqid();
-        $response = $client->get("/testRest/{$id}/edit");
+        $response = $client->get("/TestRest/{$id}/edit");
         $this->assertSame(200, $response->getStatusCode());
         $this->assertSame($id . 'editView', $response->getBody());
     }
@@ -100,7 +100,7 @@ final class RestTest extends CIUnitTestCase
             'base_uri' => 'http://localhost:8080/',
         ], null, null, false);
         $id       = uniqid();
-        $response = $client->delete("/testRest/{$id}");
+        $response = $client->delete("/TestRest/{$id}");
         $this->assertSame(200, $response->getStatusCode());
         $getJson = json_decode($response->getBody(), true);
         $this->assertSame($id, $getJson['id']);

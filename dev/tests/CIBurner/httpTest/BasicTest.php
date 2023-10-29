@@ -138,6 +138,9 @@ final class BasicTest extends CIUnitTestCase
         $this->assertSame('正體中文', $response->getBody());
     }
 
+    /**
+     * @group testSetCookies
+     */
     public function testSetCookies()
     {
         $text1 = md5(uniqid().'text1');

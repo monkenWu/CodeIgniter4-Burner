@@ -13,7 +13,12 @@ use CodeIgniter\Config\AutoloadConfig;
  * can find the files as needed.
  *
  * NOTE: If you use an identical key in $psr4 or $classmap, then
- * the values in this file will overwrite the framework's values.
+ *       the values in this file will overwrite the framework's values.
+ *
+ * NOTE: This class is required prior to Autoloader instantiation,
+ *       and does not extend BaseConfig.
+ *
+ * @immutable
  */
 class Autoload extends AutoloadConfig
 {
@@ -31,18 +36,17 @@ class Autoload extends AutoloadConfig
      * else you will need to modify all of those classes for this to work.
      *
      * Prototype:
-     *```
      *   $psr4 = [
      *       'CodeIgniter' => SYSTEMPATH,
-     *       'App'	       => APPPATH
+     *       'App'         => APPPATH
      *   ];
-     *```
      *
-     * @var array<string, string>
+     * @var array<string, array<int, string>|string>
+     * @phpstan-var array<string, string|list<string>>
      */
     public $psr4 = [
-        APP_NAMESPACE                  => APPPATH, // For custom app namespace
-        'Config'                       => APPPATH . 'Config',
+        APP_NAMESPACE => APPPATH, // For custom app namespace
+        'Config'      => APPPATH . 'Config',
         'Monken\\CIBurner\\'           => ROOTPATH . '..' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR,
         'Monken\\CIBurner\\OpenSwoole' => ROOTPATH . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'OpenSwoole' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR,
         'Monken\\CIBurner\\RoadRunner' => ROOTPATH . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'RoadRunner' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR,
@@ -60,11 +64,9 @@ class Autoload extends AutoloadConfig
      * were being autoloaded through a namespace.
      *
      * Prototype:
-     *```
      *   $classmap = [
      *       'MyClass'   => '/path/to/class/file.php'
      *   ];
-     *```
      *
      * @var array<string, string>
      */
@@ -79,13 +81,26 @@ class Autoload extends AutoloadConfig
      * or for loading functions.
      *
      * Prototype:
-     * ```
-     *	  $files = [
-     *	 	   '/path/to/my/file.php',
-     *    ];
-     * ```
+     *   $files = [
+     *       '/path/to/my/file.php',
+     *   ];
      *
-     * @var array<int, string>
+     * @var string[]
+     * @phpstan-var list<string>
      */
     public $files = [];
+
+    /**
+     * -------------------------------------------------------------------
+     * Helpers
+     * -------------------------------------------------------------------
+     * Prototype:
+     *   $helpers = [
+     *       'form',
+     *   ];
+     *
+     * @var string[]
+     * @phpstan-var list<string>
+     */
+    public $helpers = [];
 }

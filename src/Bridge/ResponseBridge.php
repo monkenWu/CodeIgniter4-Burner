@@ -2,8 +2,7 @@
 
 namespace Monken\CIBurner\Bridge;
 
-use Config\App;
-use Config\Security;
+use Config\Cookie;
 use Laminas\Diactoros\Response;
 use Laminas\Diactoros\Response\InjectContentTypeTrait;
 use Laminas\Diactoros\Stream;
@@ -89,7 +88,8 @@ class ResponseBridge extends Response
             $sessionName      = session_name();
             $cookiesSessionID = $this->_rRequest->getCookieParams()[$sessionName] ?? '';
             $cookiesParams    = session_get_cookie_params();
-            $config           = config(App::class);
+            /** @var \Config\Cookie */
+            $cookieConfig           = config(Cookie::class);
 
             if ($cookiesSessionID === '') {
                 $cookieStr = $this->getCookieString(
@@ -107,10 +107,10 @@ class ResponseBridge extends Response
                     $sessionName,
                     '',
                     time(),
-                    $config->cookiePath,
-                    $config->cookieDomain,
-                    $config->cookieSecure,
-                    $config->cookieHTTPOnly
+                    $cookieConfig->path,
+                    $cookieConfig->domain,
+                    $cookieConfig->secure,
+                    $cookieConfig->httponly
                 );
                 $result[] = $cookieStr;
             }

@@ -15,8 +15,8 @@ class Response extends Ci4Response
         if(defined('BURNER_DRIVER') === false){
             return parent::send();
         }
-        if ($this->getCSP()->enabled()) {
-            $this->getCSP()->finalize($this);
+        if ($this->CSP->enabled()) {
+            $this->CSP->finalize($this);
         } else {
             $this->body = str_replace(['{csp-style-nonce}', '{csp-script-nonce}'], '', $this->body ?? '');
         }

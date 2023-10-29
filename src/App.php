@@ -11,7 +11,6 @@ use Config\Burner as BurnerConfig;
 use Config\Modules;
 use Exception;
 use Kint\Kint;
-use Monken\CIBurner\Bridge\Debug\Toolbar;
 use Monken\CIBurner\Bridge\HandleConnections;
 use Monken\CIBurner\Bridge\RequestHandler;
 use Monken\CIBurner\Bridge\ResponseBridge;
@@ -53,7 +52,7 @@ class App
         try {
             if (ENVIRONMENT === 'development') {
                 Kint::$mode_default_cli = null;
-                $toolbar                = new Toolbar(config('Toolbar'), $ci4Request);
+                $toolbar                = new \Monken\CIBurner\Bridge\Override\Toolbar(config('Toolbar'));
                 if ($ci4BarResponse = $toolbar->respond()) {
                     $response = new ResponseBridge($ci4BarResponse, $request);
 

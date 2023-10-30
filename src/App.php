@@ -5,14 +5,12 @@ namespace Monken\CIBurner;
 use Closure;
 use CodeIgniter\Config\BaseService;
 use CodeIgniter\Config\Factories;
-use CodeIgniter\Config\Services;
+use CodeIgniter\Debug\Exceptions;
 use Config\Autoload;
 use Config\Burner as BurnerConfig;
 use Config\Modules;
 use Exception;
 use Kint\Kint;
-use Monken\CIBurner\Bridge\Debug\Exceptions;
-use Monken\CIBurner\Bridge\Debug\Toolbar;
 use Monken\CIBurner\Bridge\HandleConnections;
 use Monken\CIBurner\Bridge\RequestHandler;
 use Monken\CIBurner\Bridge\ResponseBridge;
@@ -54,7 +52,7 @@ class App
         try {
             if (ENVIRONMENT === 'development') {
                 Kint::$mode_default_cli = null;
-                $toolbar                = new Toolbar(config('Toolbar'), $ci4Request);
+                $toolbar                = new \Monken\CIBurner\Bridge\Override\Toolbar(config('Toolbar'));
                 if ($ci4BarResponse = $toolbar->respond()) {
                     $response = new ResponseBridge($ci4BarResponse, $request);
 
@@ -76,15 +74,20 @@ class App
                 return true;
             }
         } catch (Throwable $e) {
-            $exception = new Exceptions($request);
-            $response  = $exception->exceptionHandler($e);
+            /** @var \Config\Exceptions */
+            $exceptionConfig = config('exceptions');
+            $baseHandler = $exceptionConfig->handler(500, $e);
+            if($baseHandler instanceof \CodeIgniter\Debug\ExceptionHandler){
+                $exceptionConfig = new \Monken\CIBurner\Bridge\Override\Config\Exceptions();
+            }
+            $ci4Response = response();
+            $exception = new Exceptions($exceptionConfig, $ci4Request, $ci4Response);
+            $exception->exceptionHandler($e);
             unset($app);
 
             if ($isWebsocket) {
                 return false;
             }
-
-            return $response;
         }
 
         // handle response object

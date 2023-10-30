@@ -13,7 +13,7 @@ Burner 是一款專屬於 CodeIgniter4 的開箱即用的程式庫，它支援 [
 ## 安裝
 
 ### 需求
-1. CodeIgniter Framework 4.3.0 以上
+1. CodeIgniter Framework 4.4.0 以上
 2. Composer
 3. PHP8^
 

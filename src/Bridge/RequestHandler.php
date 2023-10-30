@@ -5,6 +5,7 @@ namespace Monken\CIBurner\Bridge;
 use CodeIgniter\Config\Services;
 use Config\App;
 use Psr\Http\Message\ServerRequestInterface;
+use Config\Session;
 
 class RequestHandler
 {
@@ -128,8 +129,8 @@ class RequestHandler
             $_COOKIE[$key] = $value;
         }
 
-        if (isset($_COOKIE[config(App::class)->sessionCookieName])) {
-            session_id($_COOKIE[config(App::class)->sessionCookieName]);
+        if (isset($_COOKIE[config(Session::class)->cookieName])) {
+            session_id($_COOKIE[config(Session::class)->cookieName]);
         }
 
         Services::request()->setGlobal('server', self::$_rRequest->getServerParams());

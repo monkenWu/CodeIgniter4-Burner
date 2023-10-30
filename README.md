@@ -15,7 +15,7 @@ Burner is an out-of-the-box library for CodeIgniter4 that supports [RoadRunner](
 ## Install
 
 ### Prerequisites
-1. CodeIgniter Framework 4.3.0^
+1. CodeIgniter Framework 4.4.0^
 2. Composer
 3. PHP8^
 
